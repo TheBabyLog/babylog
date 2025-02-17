@@ -35,6 +35,10 @@ export async function createBaby(
 export async function getBaby(id: number, options: Partial<Parameters<typeof db.baby.findUnique>[0]> = {}) {
     return db.baby.findUnique({
         where: { id },
+        include: {
+            caregivers: true,
+            ...options.include,
+        },
         ...options,
     });
 }
