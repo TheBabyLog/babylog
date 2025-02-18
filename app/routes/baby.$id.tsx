@@ -146,7 +146,7 @@ export default function BabyDetails() {
               {eliminations.map((elimination: Elimination) => (
                 <li key={elimination.id} className="border-b pb-2">
                   <div className="flex justify-between">
-                    <span className="font-medium">{elimination.type}</span>
+                    <span className="font-medium text-gray-500">{elimination.type}</span>
                     <span className="text-gray-500">
                       {new Date(elimination.timestamp).toLocaleTimeString()}
                     </span>
@@ -191,7 +191,7 @@ export default function BabyDetails() {
               {feedings.map((feeding: Feeding) => (
                 <li key={feeding.id} className="border-b pb-2">
                   <div className="flex justify-between">
-                    <span className="font-medium">{feeding.type}</span>
+                    <span className="font-medium text-gray-500">{feeding.type}</span>
                     <span className="text-gray-500">
                       {new Date(feeding.startTime).toLocaleTimeString()}
                     </span>
@@ -236,7 +236,7 @@ export default function BabyDetails() {
               {sleepSessions.map((sleep: Sleep) => (
                 <li key={sleep.id} className="border-b pb-2">
                   <div className="flex justify-between">
-                    <span className="font-medium">{sleep.type}</span>
+                    <span className="font-medium text-gray-500">{sleep.type}</span>
                     <span className="text-gray-500">
                       {new Date(sleep.startTime).toLocaleTimeString()}
                     </span>
