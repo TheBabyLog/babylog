@@ -13,7 +13,7 @@ async function seed() {
     },
   });
 
-  const userWithoutBaby = await prisma.user.create({
+  await prisma.user.create({
     data: {
       email: 'skeptic@monoverse.com',
       passwordHash: await bcrypt.hash('password123', 10),
