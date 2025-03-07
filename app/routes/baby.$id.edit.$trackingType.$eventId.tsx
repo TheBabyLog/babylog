@@ -1,8 +1,7 @@
-import { LoaderFunctionArgs, ActionFunctionArgs, json, redirect } from "@remix-run/node";
+import { LoaderFunctionArgs, ActionFunctionArgs, redirect } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import { TrackingModal } from "~/components/tracking/TrackingModal";
 import { getBaby } from "~/.server/baby";
-import { requireUserId } from "~/.server/session";
 import { 
   getElimination, 
   getFeeding, 
@@ -92,8 +91,7 @@ type LoaderData = {
   };
 };
 
-export async function loader({ request, params }: LoaderFunctionArgs) {
-  const userId = await requireUserId(request);
+export async function loader({params }: LoaderFunctionArgs) {
   const baby = await getBaby(Number(params.id));
 
   if (!baby) return redirect("/dashboard");
