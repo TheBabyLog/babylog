@@ -1,3 +1,5 @@
+import { timeStamp } from "node:console";
+
 export const en = {
   common: {
     welcome: 'Welcome',
@@ -71,18 +73,21 @@ export const en = {
     recent: {
       eliminations: 'Recent Eliminations',
       feedings: 'Recent Feedings',
-      sleep: 'Recent Sleep',
+      sleeps: 'Recent Sleep',
       viewAll: 'View All',
+      photos: 'Recent Photos',
       noData: {
         eliminations: 'No eliminations recorded',
         feedings: 'No feedings recorded',
-        sleep: 'No sleep sessions recorded'
+        sleeps: 'No sleep sessions recorded',
+        photos: 'No photos uploaded'
       }
     },
     details: {
       weight: 'Weight',
       amount: 'Amount',
-      quality: 'Quality'
+      quality: 'Quality',
+      caption: 'Caption',
     }
   },
   newBaby: {
