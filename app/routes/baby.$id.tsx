@@ -55,14 +55,14 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
   if (!isAuthorized) return redirect("/dashboard");
 
-  const { eliminations, feedings, sleepSessions } =
+  const { eliminations, feedings, sleepSessions, photoUploads } =
     await getRecentTrackingEvents(request, baby.id);
 
-  return { baby, eliminations, feedings, sleepSessions };
+  return { baby, eliminations, feedings, sleepSessions, photoUploads };
 }
 
 export default function BabyDetails() {
-  const { baby, eliminations, feedings, sleepSessions } =
+  const { baby, eliminations, feedings, sleepSessions, photoUploads } =
     useLoaderData<typeof loader>();
   const [showCaregiverModal, setShowCaregiverModal] = useState(false);
 
@@ -129,7 +129,7 @@ export default function BabyDetails() {
             />
 
             <TrackingSection
-              title={t("baby.recent.sleep")}
+              title={t("baby.recent.sleeps")}
               events={sleepSessions}
               babyId={baby.id}
               trackingType="sleep"
@@ -142,6 +142,19 @@ export default function BabyDetails() {
               }
             />
             {/* Insert photo TrackingSection  */}
+            <TrackingSection
+              title={t("baby.recent.photos")}
+              events={photoUploads}
+              babyId={baby.id}
+              trackingType="photo"
+              renderEventDetails={(event) =>
+                event.caption && (
+                  <div className="text-sm text-gray-600">
+                    {t("baby.details.caption")}: {event.caption}/5
+                  </div>
+                )
+              }
+            />
           </div>
         </div>
 

@@ -73,18 +73,21 @@ export const es: TranslationKeys = {
     recent: {
       eliminations: 'Eliminaciones Recientes',
       feedings: 'Alimentaciones Recientes',
-      sleep: 'Sueño Reciente',
+      sleeps: 'Sueño Reciente',
       viewAll: 'Ver Todo',
+      photos: 'Fotos Recientes',
       noData: {
         eliminations: 'No hay eliminaciones registradas',
         feedings: 'No hay alimentaciones registradas',
-        sleep: 'No hay sesiones de sueño registradas'
+        sleeps: 'No hay sesiones de sueño registradas',
+        photos: 'No hay fotos subidas',
       }
     },
     details: {
       weight: 'Peso',
       amount: 'Cantidad',
-      quality: 'Calidad'
+      quality: 'Calidad',
+      caption: 'Título',
     }
   },
   newBaby: {
