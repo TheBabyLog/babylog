@@ -22,7 +22,7 @@ stop: ## Stop the Remix development server (if running)
 	pkill -f "remix dev" || true
 
 db-start: ## Start the database container
-	docker compose up -d
+	# docker compose up -d
 	@echo "Waiting for database to be ready..."
 	@sleep 3
 
@@ -42,11 +42,28 @@ db-shell: ## Access PostgreSQL shell inside the container
 db-clean: ## Stop and remove database container, volume, and all data
 	docker compose down -v
 
+# Prisma migration commands (work with both Docker and Neon)
 migrate-dev: ## Run Prisma migrations in development
 	npx prisma migrate dev
 
 migrate-reset: ## Reset database and run all migrations
 	npx prisma migrate reset --force
+
+# Neon production commands - USE WITH CAUTION
+migrate-prod: ## Deploy migrations to production Neon database (safe for production)
+	@echo "WARNING: You are about to apply migrations to your PRODUCTION database"
+	@echo "Checking database connection type..."
+	@if grep -q "^DATABASE_URL=.*neon.tech" .env; then \
+		echo "✓ Confirmed: Using Neon production database"; \
+		echo "⚠️  This operation will apply migrations to PRODUCTION"; \
+		read -p "Are you sure you want to continue? (y/N) " confirm && [ "$$confirm" = "y" ]; \
+		echo "Deploying migrations to production database..."; \
+		npx prisma migrate deploy; \
+	else \
+		echo "❌ Not using Neon production database. Current connection appears to be development."; \
+		echo "Please ensure your .env file has the correct DATABASE_URL uncommented."; \
+		exit 1; \
+	fi
 
 studio: ## Open Prisma Studio
 	npx prisma studio
