@@ -65,6 +65,14 @@ export const en = {
         nap: 'Nap',
         night: 'Night Sleep'
       }
+    },
+    photo: {
+      title: 'Photo',
+      takenOn: 'Taken on',
+      takenAt: 'Taken at',
+      upload: 'Upload File',
+      caption: 'Caption',
+      notes: 'Notes'
     }
   },
   baby: {

@@ -65,6 +65,14 @@ export const es: TranslationKeys = {
         nap: 'Siesta',
         night: 'Sueño Nocturno'
       }
+    },
+    photo: {
+      title: 'Foto',
+      takenOn: 'Tomada el',
+      takenAt: 'Tomada en',
+      upload: 'Subir Archivo',
+      caption: 'Título',
+      notes: 'Notas'
     }
   },
   baby: {
