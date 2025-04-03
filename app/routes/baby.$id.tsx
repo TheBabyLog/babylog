@@ -55,14 +55,14 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
   if (!isAuthorized) return redirect("/dashboard");
 
-  const { eliminations, feedings, sleepSessions, photoUploads } =
+  const { eliminations, feedings, sleepSessions, photos } =
     await getRecentTrackingEvents(request, baby.id);
 
-  return { baby, eliminations, feedings, sleepSessions, photoUploads };
+  return { baby, eliminations, feedings, sleepSessions, photos };
 }
 
 export default function BabyDetails() {
-  const { baby, eliminations, feedings, sleepSessions, photoUploads } =
+  const { baby, eliminations, feedings, sleepSessions, photos } =
     useLoaderData<typeof loader>();
   const [showCaregiverModal, setShowCaregiverModal] = useState(false);
 
@@ -136,7 +136,7 @@ export default function BabyDetails() {
               renderEventDetails={(event) =>
                 event.quality && (
                   <div className="text-sm text-gray-600">
-                    {t("baby.details.quality")}: {event.quality}/5
+                    {t("baby.details.quality")}: {event.quality}
                   </div>
                 )
               }
@@ -144,13 +144,16 @@ export default function BabyDetails() {
             {/* Insert photo TrackingSection  */}
             <TrackingSection
               title={t("baby.recent.photos")}
-              events={photoUploads}
+              events={photos.map((photo) => ({
+                ...photo,
+                type: "photo" as const,
+              }))}
               babyId={baby.id}
               trackingType="photo"
               renderEventDetails={(event) =>
                 event.caption && (
                   <div className="text-sm text-gray-600">
-                    {t("baby.details.caption")}: {event.caption}/5
+                    {t("baby.details.caption")}: {event.caption}
                   </div>
                 )
               }

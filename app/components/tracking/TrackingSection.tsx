@@ -5,12 +5,15 @@ import { t } from "~/src/utils/translate";
 interface TrackingEvent {
   id: number;
   type: string;
-  caption?: string;
   timestamp?: Date;
   startTime?: Date;
   weight?: number | null;
   amount?: number | null;
   quality?: number | null;
+  url?: string | null;
+  caption?: string | null;
+  createdAt?: Date | null;
+  updatedAt?: Date | null;
 }
 
 interface TrackingSectionProps {

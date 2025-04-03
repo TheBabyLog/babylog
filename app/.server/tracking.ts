@@ -37,9 +37,9 @@ interface PhotoData {
   id: number;
   url: string;
   caption: string;
-  timestamp: Date; 
-  createdAt: Date; 
-  updatedAt: Date; 
+  takenOn: Date; 
+  takenAt: Date;
+  timestamp: Date;
 }
 
 export interface EliminationUpdateData {
@@ -71,9 +71,12 @@ export interface SleepUpdateData {
   notes?: string | null;
 }
 
-// export interface PhotoUpdateData {}?
 export interface PhotoUpdateData {
+  id?: number;
+  url?: string;
   caption?: string;
+  takenOn?: Date; 
+  takenAt?: Date; 
 }
 
 export async function trackElimination(request: Request, data: EliminationData) {
@@ -130,7 +133,6 @@ export async function editSleep(request: Request, id: number, data: SleepUpdateD
   });
 }
 
-// editPhoto?
 export async function editPhoto(id: number, data: PhotoUpdateData) {
   return db.photo.update({
     where: { id },
@@ -138,16 +140,15 @@ export async function editPhoto(id: number, data: PhotoUpdateData) {
   });
 }
 
-export async function deletePhoto(id: number, data: PhotoData) {
-  return db.photo.delete ({
-    where: { id },
-    data
+export async function deletePhoto(id: number) {
+  return db.photo.delete({
+    where: { id }
   });
 }
 
 export async function getRecentTrackingEvents(request: Request, babyId: number, limit: number = 5) {
   const userId = await requireUserId(request);
-  const [eliminations, feedings, sleepSessions, photoUploads] = await Promise.all([
+  const [eliminations, feedings, sleepSessions, photos] = await Promise.all([
     db.elimination.findMany({
       where: { babyId },
       orderBy: { timestamp: 'desc' },
@@ -183,7 +184,7 @@ export async function getRecentTrackingEvents(request: Request, babyId: number, 
     eliminations,
     feedings,
     sleepSessions,
-    photoUploads,
+    photos,
   };
 }
 
@@ -208,7 +209,7 @@ export async function getSleep(request: Request, id: number) {
   });
 } 
 
-export async function getPhotos(id: number) {
+export async function getPhoto(id: number) {
   return db.photo.findUnique({
     where: { id }
   });
