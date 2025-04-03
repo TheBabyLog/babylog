@@ -35,26 +35,46 @@ export const es: TranslationKeys = {
     type: 'Tipo',
     notes: 'Notas',
     notesPlaceholder: 'Agregar notas adicionales...',
+    chooseFile: 'Elegir archivo',
+    noFileSelected: 'Ningún archivo seleccionado',
     elimination: {
       title: 'Eliminación',
+      type: 'Tipo',
+      time: 'Hora',
       weight: 'Peso (g)',
+      location: 'Ubicación',
+      notes: 'Notas',
       types: {
         wet: 'Mojado',
         dirty: 'Sucio',
+        mixed: 'Mixto',
         both: 'Ambos'
       }
     },
     feeding: {
       title: 'Alimentación',
+      type: 'Tipo',
+      startTime: 'Hora de inicio',
+      endTime: 'Hora de fin',
+      side: 'Lado',
       amount: 'Cantidad (ml)',
+      food: 'Alimento',
+      notes: 'Notas',
       types: {
         breast: 'Pecho',
         bottle: 'Biberón',
-        formula: 'Fórmula'
+        formula: 'Fórmula',
+        solid: 'Sólido'
+      },
+      sides: {
+        left: 'Izquierdo',
+        right: 'Derecho'
       }
     },
     sleep: {
       title: 'Sueño',
+      type: 'Tipo',
+      notes: 'Notas',
       startTime: 'Inicio',
       endTime: 'Fin',
       how: 'Cómo',
@@ -65,6 +85,16 @@ export const es: TranslationKeys = {
         nap: 'Siesta',
         night: 'Sueño Nocturno'
       }
+    },
+    photo: {
+      title: 'Foto',
+      url: 'URL',
+      takenOn: 'Tomada el',
+      takenAt: 'Tomada en',
+      uploadedAt: 'Subida el',
+      upload: 'Subir archivo',
+      caption: 'Título',
+      notes: 'Notas'
     }
   },
   baby: {
@@ -73,18 +103,21 @@ export const es: TranslationKeys = {
     recent: {
       eliminations: 'Eliminaciones Recientes',
       feedings: 'Alimentaciones Recientes',
-      sleep: 'Sueño Reciente',
+      sleeps: 'Sueño Reciente',
       viewAll: 'Ver Todo',
+      photos: 'Fotos Recientes',
       noData: {
         eliminations: 'No hay eliminaciones registradas',
         feedings: 'No hay alimentaciones registradas',
-        sleep: 'No hay sesiones de sueño registradas'
+        sleeps: 'No hay sesiones de sueño registradas',
+        photos: 'No hay fotos subidas',
       }
     },
     details: {
       weight: 'Peso',
       amount: 'Cantidad',
-      quality: 'Calidad'
+      quality: 'Calidad',
+      caption: 'Título',
     }
   },
   newBaby: {

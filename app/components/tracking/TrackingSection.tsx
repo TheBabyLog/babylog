@@ -1,6 +1,6 @@
 import { Link } from "@remix-run/react";
 import { PlusIcon, PencilIcon } from "lucide-react";
-import { t } from '~/src/utils/translate';
+import { t } from "~/src/utils/translate";
 
 interface TrackingEvent {
   id: number;
@@ -10,22 +10,26 @@ interface TrackingEvent {
   weight?: number | null;
   amount?: number | null;
   quality?: number | null;
+  url?: string | null;
+  caption?: string | null;
+  createdAt?: Date | null;
+  updatedAt?: Date | null;
 }
 
 interface TrackingSectionProps {
   title: string;
   events: TrackingEvent[];
   babyId: number;
-  trackingType: 'elimination' | 'feeding' | 'sleep';
+  trackingType: "elimination" | "feeding" | "sleep" | "photo";
   renderEventDetails?: (event: TrackingEvent) => React.ReactNode;
 }
 
-export function TrackingSection({ 
-  title, 
-  events, 
-  babyId, 
+export function TrackingSection({
+  title,
+  events,
+  babyId,
   trackingType,
-  renderEventDetails 
+  renderEventDetails,
 }: TrackingSectionProps) {
   return (
     <div className="bg-white shadow rounded-lg p-6">
@@ -43,12 +47,14 @@ export function TrackingSection({
             to={`/baby/${babyId}/${trackingType}s`}
             className="text-blue-500 hover:underline"
           >
-            {t('baby.recent.viewAll')}
+            {t("baby.recent.viewAll")}
           </Link>
         </div>
       </div>
       {events.length === 0 ? (
-        <p className="text-gray-500">{t(`baby.recent.noData.${trackingType}s`)}</p>
+        <p className="text-gray-500">
+          {t(`baby.recent.noData.${trackingType}s`)}
+        </p>
       ) : (
         <ul className="space-y-3">
           {events.map((event) => (
@@ -56,9 +62,13 @@ export function TrackingSection({
               <div className="flex justify-between items-start">
                 <div className="flex-1">
                   <div className="flex justify-between">
-                    <span className="font-medium text-gray-500">{event.type}</span>
+                    <span className="font-medium text-gray-500">
+                      {event.type}
+                    </span>
                     <span className="text-gray-500">
-                      {new Date(event.timestamp || event.startTime!).toLocaleTimeString()}
+                      {new Date(
+                        event.timestamp || event.startTime!
+                      ).toLocaleTimeString()}
                     </span>
                   </div>
                   {renderEventDetails && renderEventDetails(event)}
@@ -77,4 +87,4 @@ export function TrackingSection({
       )}
     </div>
   );
-} 
+}

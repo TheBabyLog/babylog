@@ -32,6 +32,15 @@ interface SleepData {
   notes?: string | null;
 }
 
+interface PhotoData {
+  id: number;
+  url: string;
+  caption: string;
+  takenOn: Date; 
+  takenAt: Date;
+  timestamp: Date;
+}
+
 export interface EliminationUpdateData {
   type?: string;
   timestamp?: Date;
@@ -61,6 +70,14 @@ export interface SleepUpdateData {
   notes?: string | null;
 }
 
+export interface PhotoUpdateData {
+  id?: number;
+  url?: string;
+  caption?: string;
+  takenOn?: Date; 
+  takenAt?: Date; 
+}
+
 export async function trackElimination(data: EliminationData) {
   return db.elimination.create({
     data: {
@@ -78,6 +95,12 @@ export async function trackFeeding(data: FeedingData) {
 
 export async function trackSleep(data: SleepData) {
   return db.sleep.create({
+    data: data,
+  });
+}
+
+export async function uploadPhoto(data: PhotoData) {
+  return db.photo.create({
     data: data,
   });
 }
@@ -103,8 +126,21 @@ export async function editSleep(id: number, data: SleepUpdateData) {
   });
 }
 
+export async function editPhoto(id: number, data: PhotoUpdateData) {
+  return db.photo.update({
+    where: { id },
+    data
+  });
+}
+
+export async function deletePhoto(id: number) {
+  return db.photo.delete({
+    where: { id }
+  });
+}
+
 export async function getRecentTrackingEvents(babyId: number, limit: number = 5) {
-  const [eliminations, feedings, sleepSessions] = await Promise.all([
+  const [eliminations, feedings, sleepSessions, photos] = await Promise.all([
     db.elimination.findMany({
       where: { babyId },
       orderBy: { timestamp: 'desc' },
@@ -120,12 +156,27 @@ export async function getRecentTrackingEvents(babyId: number, limit: number = 5)
       orderBy: { startTime: 'desc' },
       take: limit,
     }),
-  ]);
+    db.photo.findMany({
+      where: {
+        albumPhotos: {
+          some: {
+            album: {
+              babyId
+            }
+          }
+        }
+      },
+      orderBy: {
+        createdAt: 'desc'
+      },
+      take: limit,
+  })]);
 
   return {
     eliminations,
     feedings,
     sleepSessions,
+    photos,
   };
 }
 
@@ -143,6 +194,12 @@ export async function getFeeding(id: number) {
 
 export async function getSleep(id: number) {
   return db.sleep.findUnique({
+    where: { id }
+  });
+} 
+
+export async function getPhoto(id: number) {
+  return db.photo.findUnique({
     where: { id }
   });
 } 
