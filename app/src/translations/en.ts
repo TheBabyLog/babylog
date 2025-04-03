@@ -35,26 +35,46 @@ export const en = {
     type: 'Type',
     notes: 'Notes',
     notesPlaceholder: 'Add any additional notes...',
+    chooseFile: 'Choose File',
+    noFileSelected: 'No file selected',
     elimination: {
       title: 'Elimination',
+      type: 'Type',
+      time: 'Time',
       weight: 'Weight (g)',
+      location: 'Location',
+      notes: 'Notes',
       types: {
         wet: 'Wet',
         dirty: 'Dirty',
+        mixed: 'Mixed',
         both: 'Both'
       }
     },
     feeding: {
       title: 'Feeding',
+      type: 'Type',
+      startTime: 'Start Time',
+      endTime: 'End Time',
+      side: 'Side',
       amount: 'Amount (ml)',
+      food: 'Food',
+      notes: 'Notes',
       types: {
         breast: 'Breast',
         bottle: 'Bottle',
-        formula: 'Formula'
+        formula: 'Formula',
+        solid: 'Solid'
+      },
+      sides: {
+        left: 'Left',
+        right: 'Right'
       }
     },
     sleep: {
       title: 'Sleep',
+      type: 'Type',
+      notes: 'Notes',
       startTime: 'Start Time',
       endTime: 'End Time',
       how: 'How',
@@ -68,8 +88,10 @@ export const en = {
     },
     photo: {
       title: 'Photo',
+      url: 'URL',
       takenOn: 'Taken on',
       takenAt: 'Taken at',
+      uploadedAt: 'Uploaded at',
       upload: 'Upload File',
       caption: 'Caption',
       notes: 'Notes'

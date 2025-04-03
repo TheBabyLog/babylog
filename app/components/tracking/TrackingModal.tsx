@@ -39,6 +39,43 @@ export function TrackingModal({
     return () => window.removeEventListener("keydown", handleEscape);
   }, [navigate, babyId]);
 
+  // Add style for file input button text
+  useEffect(() => {
+    const style = document.createElement("style");
+    style.textContent = `
+      input[type="file"]::-webkit-file-upload-button {
+        margin-right: 1rem;
+        padding: 0.5rem 1rem;
+        border-radius: 9999px;
+        border: 0;
+        font-size: 0.875rem;
+        font-weight: 600;
+        background-color: rgb(239 246 255);
+        color: rgb(29 78 216);
+      }
+      input[type="file"]::-webkit-file-upload-button:hover {
+        background-color: rgb(219 234 254);
+      }
+      input[type="file"]::file-selector-button {
+        margin-right: 1rem;
+        padding: 0.5rem 1rem;
+        border-radius: 9999px;
+        border: 0;
+        font-size: 0.875rem;
+        font-weight: 600;
+        background-color: rgb(239 246 255);
+        color: rgb(29 78 216);
+      }
+      input[type="file"]::file-selector-button:hover {
+        background-color: rgb(219 234 254);
+      }
+    `;
+    document.head.appendChild(style);
+    return () => {
+      document.head.removeChild(style);
+    };
+  }, []);
+
   const inputClasses =
     "w-full p-2 border rounded bg-black text-white [&>option]:text-black";
   const labelClasses = "block text-sm font-medium mb-1 text-white";
@@ -80,16 +117,30 @@ export function TrackingModal({
         );
       case "file":
         return (
-          <div>
-            <input
-              id={field.id}
-              name={field.id}
-              type="file"
-              className={`${inputClasses} file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100`}
-              required={field.required}
-              accept={field.accept}
-              onChange={handleFileChange}
-            />
+          <div className="flex flex-col gap-2">
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                onClick={() => document.getElementById(field.id)?.click()}
+                className="px-4 py-2 bg-blue-50 text-blue-700 rounded-full text-sm font-semibold hover:bg-blue-100 transition-colors"
+              >
+                {t("tracking.chooseFile")}
+              </button>
+              <span className="text-gray-400 text-sm truncate">
+                {previewUrl
+                  ? previewUrl.split("/").pop()
+                  : t("tracking.noFileSelected")}
+              </span>
+              <input
+                id={field.id}
+                name={field.id}
+                type="file"
+                className="hidden"
+                required={field.required}
+                accept={field.accept}
+                onChange={handleFileChange}
+              />
+            </div>
             {previewUrl && (
               <div className="mt-2">
                 <img
@@ -124,9 +175,7 @@ export function TrackingModal({
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
       <div className="bg-gray-900 rounded-lg max-w-md w-full p-6">
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-semibold text-white">
-            {t("modal.track")} {title}
-          </h2>
+          <h2 className="text-xl font-semibold text-white">{title}</h2>
           <button
             onClick={() => navigate(`/baby/${babyId}`)}
             className="p-1 hover:bg-gray-800 rounded-full text-white"
