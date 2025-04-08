@@ -56,7 +56,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   if (!isAuthorized) return redirect("/dashboard");
 
   const { eliminations, feedings, sleepSessions } =
-    await getRecentTrackingEvents(baby.id);
+    await getRecentTrackingEvents(request, baby.id);
 
   return { baby, eliminations, feedings, sleepSessions };
 }

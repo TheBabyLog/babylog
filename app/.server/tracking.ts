@@ -1,4 +1,5 @@
 import { db } from "./db";
+import { requireUserId } from "./session";
 
 interface EliminationData {
   babyId: number;
@@ -61,7 +62,8 @@ export interface SleepUpdateData {
   notes?: string | null;
 }
 
-export async function trackElimination(data: EliminationData) {
+export async function trackElimination(request: Request, data: EliminationData) {
+  await requireUserId(request);
   return db.elimination.create({
     data: {
       ...data,
@@ -70,40 +72,46 @@ export async function trackElimination(data: EliminationData) {
   });
 }
 
-export async function trackFeeding(data: FeedingData) {
+export async function trackFeeding(request: Request, data: FeedingData) {
+  await requireUserId(request);
   return db.feeding.create({
     data: data,
   });
 }
 
-export async function trackSleep(data: SleepData) {
+export async function trackSleep(request: Request, data: SleepData) {
+  await requireUserId(request);
   return db.sleep.create({
     data: data,
   });
 }
 
-export async function editElimination(id: number, data: EliminationUpdateData) {
+export async function editElimination(request: Request, id: number, data: EliminationUpdateData) {
+  await requireUserId(request);
   return db.elimination.update({
     where: { id },
     data
   });
 }
 
-export async function editFeeding(id: number, data: FeedingUpdateData) {
+export async function editFeeding(request: Request, id: number, data: FeedingUpdateData) {
+  await requireUserId(request);
   return db.feeding.update({
     where: { id },
     data
   });
 }
 
-export async function editSleep(id: number, data: SleepUpdateData) {
+export async function editSleep(request: Request, id: number, data: SleepUpdateData) {
+  await requireUserId(request);
   return db.sleep.update({
     where: { id },
     data
   });
 }
 
-export async function getRecentTrackingEvents(babyId: number, limit: number = 5) {
+export async function getRecentTrackingEvents(request: Request, babyId: number, limit: number = 5) {
+  const userId = await requireUserId(request);
   const [eliminations, feedings, sleepSessions] = await Promise.all([
     db.elimination.findMany({
       where: { babyId },
@@ -129,19 +137,22 @@ export async function getRecentTrackingEvents(babyId: number, limit: number = 5)
   };
 }
 
-export async function getElimination(id: number) {
+export async function getElimination(request: Request, id: number) {
+  await requireUserId(request);
   return db.elimination.findUnique({
     where: { id }
   });
 }
 
-export async function getFeeding(id: number) {
+export async function getFeeding(request: Request, id: number) {
+  await requireUserId(request);
   return db.feeding.findUnique({
     where: { id }
   });
 }
 
-export async function getSleep(id: number) {
+export async function getSleep(request: Request, id: number) {
+  await requireUserId(request);
   return db.sleep.findUnique({
     where: { id }
   });

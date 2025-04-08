@@ -2,6 +2,7 @@ import { LoaderFunctionArgs, ActionFunctionArgs, redirect } from "@remix-run/nod
 import { useLoaderData } from "@remix-run/react";
 import { TrackingModal } from "~/components/tracking/TrackingModal";
 import { getBaby } from "~/.server/baby";
+import { requireUserId } from "~/.server/session";
 import { 
   getElimination, 
   getFeeding, 
@@ -14,6 +15,7 @@ import {
   type SleepUpdateData
 } from "~/.server/tracking";
 import { t } from '~/src/utils/translate';
+import type { Baby, BabyCaregiver } from "@prisma/client";
 
 type FieldType = "text" | "number" | "select" | "textarea" | "datetime-local";
 
@@ -91,10 +93,17 @@ type LoaderData = {
   };
 };
 
-export async function loader({params }: LoaderFunctionArgs) {
+export async function loader({params, request }: LoaderFunctionArgs) {
+  const userId = await requireUserId(request);
   const baby = await getBaby(Number(params.id));
 
   if (!baby) return redirect("/dashboard");
+  
+  // Verify user has permission to access this baby's data
+  const isAuthorized = baby.ownerId === userId || 
+    (baby as Baby & { caregivers: BabyCaregiver[] }).caregivers.some(c => c.userId === userId);
+  
+  if (!isAuthorized) return redirect("/dashboard");
 
   const eventId = Number(params.eventId);
   const trackingType = params.trackingType as keyof typeof TRACKING_FIELDS;
@@ -106,13 +115,13 @@ export async function loader({params }: LoaderFunctionArgs) {
   let event;
   switch (trackingType) {
     case 'elimination':
-      event = await getElimination(eventId);
+      event = await getElimination(request, eventId);
       break;
     case 'feeding':
-      event = await getFeeding(eventId);
+      event = await getFeeding(request, eventId);
       break;
     case 'sleep':
-      event = await getSleep(eventId);
+      event = await getSleep(request, eventId);
       break;
   }
 
@@ -126,6 +135,17 @@ export async function loader({params }: LoaderFunctionArgs) {
 }
 
 export async function action({ request, params }: ActionFunctionArgs) {
+  const userId = await requireUserId(request);
+  const baby = await getBaby(Number(params.id));
+
+  if (!baby) return redirect("/dashboard");
+  
+  // Verify user has permission to modify this baby's data
+  const isAuthorized = baby.ownerId === userId || 
+    (baby as Baby & { caregivers: BabyCaregiver[] }).caregivers.some(c => c.userId === userId);
+  
+  if (!isAuthorized) return redirect("/dashboard");
+
   const formData = await request.formData();
   const eventId = Number(params.eventId);
   const trackingType = params.trackingType as keyof typeof TRACKING_FIELDS;
@@ -141,7 +161,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
         location: rawData.location?.toString() ?? null,
         notes: rawData.notes?.toString() ?? null,
       };
-      await editElimination(eventId, data);
+      await editElimination(request, eventId, data);
       break;
     }
     case 'feeding': {
@@ -154,7 +174,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
         food: rawData.food?.toString() ?? null,
         notes: rawData.notes?.toString() ?? null,
       };
-      await editFeeding(eventId, data);
+      await editFeeding(request, eventId, data);
       break;
     }
     case 'sleep': {
@@ -168,7 +188,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
         quality: rawData.quality ? Number(rawData.quality) : null,
         notes: rawData.notes?.toString() ?? null,
       };
-      await editSleep(eventId, data);
+      await editSleep(request, eventId, data);
       break;
     }
   }
