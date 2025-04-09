@@ -22,7 +22,11 @@ export async function createUserSession(userId: number, redirectTo: string) {
 }
 
 export async function getUserSession(request: Request) {
-    return sessionStorage.getSession(request.headers.get("Cookie"));
+    const cookie = request.headers.get("Cookie");
+    if (!cookie) {
+        return sessionStorage.getSession();
+    }
+    return sessionStorage.getSession(cookie);
 }
 
 export async function getUserId(request: Request) {

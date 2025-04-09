@@ -17,12 +17,13 @@ model User {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
-  babies       BabyCaregiver[]
-  ownedBabies  Baby[]          @relation("BabyOwner")
-  posts        Post[]
-  comments     Comment[]
-  albumAccess  AlbumAccess[]
+  babies      BabyCaregiver[]
+  ownedBabies Baby[]          @relation("BabyOwner")
+  posts       Post[]
+  comments    Comment[]
+
   ParentInvite ParentInvite[]
+  AlbumAccess  AlbumAccess[]
 
   @@index([email])
 }
@@ -36,19 +37,19 @@ model Baby {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  owner         User            @relation("BabyOwner", fields: [ownerId], references: [id], onDelete: Cascade)
-  ownerId       Int
-  caregivers    BabyCaregiver[]
-  eliminations  Elimination[]
-  feedings      Feeding[]
-  sleepSessions Sleep[]
-  activities    Activity[]
-  photos        BabyPhoto[]
-  milestones    Milestone[]
-  healthRecords HealthRecord[]
-  measurements  Measurement[]
-  albums        Album[]
-  parentInvites ParentInvite[]
+  owner              User            @relation("BabyOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+  ownerId            Int
+  caregivers         BabyCaregiver[]
+  eliminations       Elimination[]
+  feedings           Feeding[]
+  sleepsleepSessions Sleep[]
+  activities         Activity[]
+  photos             BabyPhoto[]
+  milestones         Milestone[]
+  healthRecords      HealthRecord[]
+  measurements       Measurement[]
+  albums             Album[]
+  parentInvites      ParentInvite[]
 
   @@index([dateOfBirth])
 }
@@ -108,17 +109,17 @@ model Feeding {
 }
 
 model Sleep {
-  id            Int       @id @default(autoincrement())
-  startTime     DateTime
-  endTime       DateTime?
-  how           String?
+  id              Int       @id @default(autoincrement())
+  startTime       DateTime
+  endTime         DateTime?
+  how             String?
   whereFellAsleep String?
-  whereSlept     String?
-  type          String
-  quality       Int?
-  notes         String?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  whereSlept      String?
+  type            String
+  quality         Int?
+  notes           String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
 
   baby   Baby @relation(fields: [babyId], references: [id], onDelete: Cascade)
   babyId Int

@@ -181,21 +181,21 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
   switch (type) {
     case 'elimination':
-      await trackElimination({
+      await trackElimination(request, {
         ...baseData,
         timestamp,
         weight: formData.get("weight") ? Number(formData.get("weight")) : null,
       });
       break;
     case 'feeding':
-      await trackFeeding({
+      await trackFeeding(request, {
         ...baseData,
         startTime: timestamp,
         amount: formData.get("amount") ? Number(formData.get("amount")) : null,
       });
       break;
     case 'sleep':
-      await trackSleep({
+      await trackSleep(request, {
         ...baseData,
         startTime: timestamp,
         quality: formData.get("quality") ? Number(formData.get("quality")) : null,
