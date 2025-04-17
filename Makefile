@@ -115,9 +115,6 @@ prisma-generate: ## Generate Prisma types
 seed: ## Seed the database with test data
 	npx prisma db seed
 
-db-shell: 
-	docker compose exec db psql -U remix_user -d remix_db
-
 repl: ## Start the REPL
 	npx ts-node
 
