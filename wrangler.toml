@@ -1,0 +1,22 @@
+# Project name 
+name = "babylog"
+
+# Use a recent compatibility date
+compatibility_date = "2025-04-16"
+
+# Enable Node.js compatibility - essential for Prisma
+compatibility_flags = ["nodejs_compat"]
+
+# For Cloudflare Pages deployment
+[site]
+bucket = "build/client"
+
+# Environment variables (non-sensitive ones)
+[vars]
+# Add any non-sensitive environment variables here
+# Example:
+# API_URL = "https://api.example.com"
+
+# For local development with Wrangler
+[dev]
+port = 8788
