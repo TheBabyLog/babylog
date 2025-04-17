@@ -7,6 +7,8 @@ compatibility_date = "2025-04-16"
 # Enable Node.js compatibility - essential for Prisma
 compatibility_flags = ["nodejs_compat"]
 
+pages_build_output_dir = "./build/client"
+
 # For Cloudflare Pages deployment
 [site]
 bucket = "build/client"
