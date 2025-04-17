@@ -7,10 +7,12 @@
     "build": "remix vite:build",
     "dev": "remix vite:dev",
     "lint": "eslint --ignore-path .gitignore --cache --cache-location ./node_modules/.cache/eslint .",
-    "start": "remix-serve ./build/server/index.js",
+    "start": "wrangler pages dev ./build/client",
+    "deploy": "wrangler pages deploy ./build/client",
     "test": "vitest",
     "test:watch": "vitest watch",
-    "typecheck": "tsc"
+    "typecheck": "tsc",
+    "typegen": "wrangler types"
   },
   "dependencies": {
     "@prisma/client": "^6.3.0",
