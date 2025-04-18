@@ -20,7 +20,7 @@ if (typeof process === "undefined" || !process.env.NODE_ENV) {
   // Type assertion needed to make TypeScript happy with this non-standard structure
   const globalEnv = (
     globalThis as unknown as Record<string, Record<string, string>>
-  )?.ENVIRONMENT;
+  )?.env;
 
   // Get the DATABASE_URL from Cloudflare environment variables
   const connectionString = globalEnv?.DATABASE_URL;
