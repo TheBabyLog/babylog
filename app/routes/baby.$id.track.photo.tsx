@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useCallback } from "react";
 import {
   ActionFunctionArgs,
   LoaderFunctionArgs,
@@ -7,6 +7,8 @@ import {
 import { useLoaderData } from "@remix-run/react";
 import { getBaby } from "~/.server/baby";
 import { requireUserId } from "~/.server/session";
+import { trackPhoto } from "~/.server/tracking";
+import { prepareFileUpload, getS3Url } from "~/.server/s3_auth";
 import { TrackingModal } from "~/components/tracking/TrackingModal";
 import { t } from "~/src/utils/translate";
 import type { Baby, BabyCaregiver } from "@prisma/client";
@@ -30,14 +32,60 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 export async function action({ request, params }: ActionFunctionArgs) {
   const formData = await request.formData();
   const babyId = Number(params.id);
+  await requireUserId(request);
 
-  // TODO: Implement photo upload functionality
-  // This would involve:
-  // 1. Processing the uploaded file
-  // 2. Storing it in your storage solution (e.g., S3, local filesystem)
-  // 3. Creating a database record for the photo
+  try {
+    const caption = (formData.get("caption") as string) || undefined;
+    const photoFile = formData.get("photo") as File;
 
-  return redirect(`/baby/${babyId}`);
+    if (!photoFile || !(photoFile instanceof File)) {
+      throw new Error("No photo file uploaded");
+    }
+
+    // Validate file type
+    if (!photoFile.type.startsWith("image/")) {
+      throw new Error("Only image files are allowed");
+    }
+
+    // Validate file size (e.g., 5MB limit)
+    const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB in bytes
+    if (photoFile.size > MAX_FILE_SIZE) {
+      throw new Error("File size exceeds 5MB limit");
+    }
+
+    try {
+      const uploadDetails = await prepareFileUpload(photoFile);
+
+      const response = await fetch(uploadDetails.uploadUrl, {
+        method: "PUT",
+        body: await photoFile.arrayBuffer(),
+        headers: {
+          "Content-Type": uploadDetails.contentType,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to upload file: ${response.statusText}`);
+      }
+
+      const s3Url = getS3Url(uploadDetails.filename);
+
+      await trackPhoto(request, {
+        id: 0,
+        url: s3Url,
+        caption,
+        timestamp: new Date(),
+      });
+
+      return redirect(`/baby/${babyId}`);
+    } catch (error) {
+      console.error("Upload error:", error);
+      throw new Error("Failed to upload photo");
+    }
+  } catch (error) {
+    console.error("Processing error:", error);
+    throw error instanceof Error ? error : new Error("Unknown error occurred");
+  }
 }
 
 export default function TrackPhoto() {
@@ -46,39 +94,23 @@ export default function TrackPhoto() {
   const fields = useMemo(
     () => [
       {
-        id: "takenOn",
-        label: t("tracking.photo.takenOn"),
-        type: "datetime-local" as const,
-        required: true,
-      },
-      {
-        id: "takenAt",
-        label: t("tracking.photo.takenAt"),
-        type: "text" as const,
-        required: false,
-      },
-      {
         id: "photo",
         label: t("tracking.photo.upload"),
         type: "file" as const,
         required: true,
         accept: "image/*",
+        dragDrop: true, // Enable drag and drop
       },
       {
         id: "caption",
         label: t("tracking.photo.caption"),
         type: "text" as const,
         required: false,
-      },
-      {
-        id: "notes",
-        label: t("tracking.photo.notes"),
-        type: "textarea" as const,
-        placeholder: t("tracking.notesPlaceholder"),
+        placeholder: t("tracking.photo.captionPlaceholder"),
       },
     ],
     []
-  ); // Empty dependency array since t() is stable
+  );
 
   return (
     <TrackingModal

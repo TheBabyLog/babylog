@@ -1,4 +1,3 @@
-import { timeStamp } from "node:console";
 
 export const en = {
   common: {
@@ -36,6 +35,7 @@ export const en = {
     notes: 'Notes',
     notesPlaceholder: 'Add any additional notes...',
     chooseFile: 'Choose File',
+    dragAndDrop: 'Or drag and drop your photo here',
     noFileSelected: 'No file selected',
     elimination: {
       title: 'Elimination',
@@ -88,13 +88,9 @@ export const en = {
     },
     photo: {
       title: 'Photo',
-      url: 'URL',
-      takenOn: 'Taken on',
-      takenAt: 'Taken at',
-      uploadedAt: 'Uploaded at',
       upload: 'Upload File',
       caption: 'Caption',
-      notes: 'Notes'
+      captionPlaceholder: 'Add a caption...',
     }
   },
   baby: {

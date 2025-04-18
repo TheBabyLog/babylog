@@ -36,9 +36,7 @@ interface SleepData {
 interface PhotoData {
   id: number;
   url: string;
-  caption: string;
-  takenOn: Date; 
-  takenAt: Date;
+  caption?: string;
   timestamp: Date;
 }
 
@@ -103,7 +101,8 @@ export async function trackSleep(request: Request, data: SleepData) {
   });
 }
 
-export async function uploadPhoto(data: PhotoData) {
+export async function trackPhoto(request: Request, data: PhotoData) {
+  await requireUserId(request);
   return db.photo.create({
     data: data,
   });
@@ -133,14 +132,16 @@ export async function editSleep(request: Request, id: number, data: SleepUpdateD
   });
 }
 
-export async function editPhoto(id: number, data: PhotoUpdateData) {
+export async function editPhoto(request: Request, id: number, data: PhotoUpdateData) {
+  await requireUserId(request);
   return db.photo.update({
     where: { id },
     data
   });
 }
 
-export async function deletePhoto(id: number) {
+export async function deletePhoto(request: Request, id: number) {
+  await requireUserId(request);
   return db.photo.delete({
     where: { id }
   });
@@ -209,7 +210,8 @@ export async function getSleep(request: Request, id: number) {
   });
 } 
 
-export async function getPhoto(id: number) {
+export async function getPhoto(request: Request, id: number) {
+  await requireUserId(request);
   return db.photo.findUnique({
     where: { id }
   });

@@ -10,7 +10,7 @@ import {
   trackElimination,
   trackFeeding,
   trackSleep,
-  uploadPhoto,
+  trackPhoto,
 } from "~/.server/tracking";
 import { TrackingModal } from "~/components/tracking/TrackingModal";
 import { t } from "~/src/utils/translate";
@@ -154,28 +154,18 @@ function getTrackingConfig(type: TrackingType) {
       title: t("tracking.photo.title"),
       fields: [
         {
-          id: "takenOn",
-          label: t("tracking.photo.takenOn"),
-          type: "datetime-local" as const,
-          required: true,
-        },
-        {
-          id: "takenAt",
-          label: t("tracking.photo.takenAt"),
-          type: "datetime-local" as const,
-          required: true,
-        },
-        {
-          id: "upload",
+          id: "photo",
           label: t("tracking.photo.upload"),
           type: "file" as const,
           required: true,
+          accept: "image/*",
         },
         {
           id: "caption",
           label: t("tracking.photo.caption"),
           type: "text" as const,
           required: false,
+          placeholder: t("tracking.photo.captionPlaceholder"),
         },
         {
           id: "notes",
@@ -253,10 +243,8 @@ export async function action({ request, params }: ActionFunctionArgs) {
           : null,
       });
     case "photo":
-      await uploadPhoto({
+      await trackPhoto(request, {
         ...baseData,
-        takenOn: timestamp,
-        takenAt: timestamp,
         timestamp: timestamp,
         id: 0,
         url: "",

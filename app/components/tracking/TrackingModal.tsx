@@ -1,6 +1,6 @@
 import { Form, useNavigate } from "@remix-run/react";
 import { XIcon } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { t } from "~/src/utils/translate";
 
 interface Field {
@@ -11,6 +11,7 @@ interface Field {
   required?: boolean;
   placeholder?: string;
   accept?: string;
+  dragDrop?: boolean;
 }
 
 interface TrackingModalProps {
@@ -28,6 +29,7 @@ export function TrackingModal({
 }: TrackingModalProps) {
   const navigate = useNavigate();
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
 
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
@@ -88,7 +90,84 @@ export function TrackingModal({
     }
   };
 
+  const handleDragOver = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+  }, []);
+
+  const handleDragLeave = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+  }, []);
+
+  const handleDrop = useCallback((e: React.DragEvent, fieldId: string) => {
+    e.preventDefault();
+    setIsDragging(false);
+
+    const file = e.dataTransfer.files[0];
+    if (file && file.type.startsWith("image/")) {
+      const input = document.getElementById(fieldId) as HTMLInputElement;
+      if (input) {
+        const dataTransfer = new DataTransfer();
+        dataTransfer.items.add(file);
+        input.files = dataTransfer.files;
+        const url = URL.createObjectURL(file);
+        setPreviewUrl(url);
+      }
+    }
+  }, []);
+
+  const renderFileUpload = (field: Field) => (
+    <div className="flex flex-col gap-2">
+      <div
+        className={`border-2 border-dashed rounded-lg p-6 text-center transition-colors ${
+          isDragging
+            ? "border-blue-500 bg-blue-50"
+            : "border-gray-300 hover:border-gray-400"
+        }`}
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+        onDrop={(e) => handleDrop(e, field.id)}
+      >
+        <div className="flex flex-col items-center gap-2">
+          <button
+            type="button"
+            onClick={() => document.getElementById(field.id)?.click()}
+            className="px-4 py-2 bg-blue-50 text-blue-700 rounded-full text-sm font-semibold hover:bg-blue-100 transition-colors"
+          >
+            {t("tracking.chooseFile")}
+          </button>
+          <span className="text-gray-500 text-sm">
+            {t("tracking.dragAndDrop")}
+          </span>
+          <input
+            id={field.id}
+            name={field.id}
+            type="file"
+            className="hidden"
+            required={field.required}
+            accept={field.accept}
+            onChange={handleFileChange}
+          />
+        </div>
+        {previewUrl && (
+          <div className="mt-4">
+            <img
+              src={previewUrl}
+              alt={t("tracking.preview")}
+              className="max-w-xs mx-auto rounded-lg shadow-md"
+            />
+          </div>
+        )}
+      </div>
+    </div>
+  );
+
   const renderField = (field: Field) => {
+    if (field.type === "file" && field.dragDrop) {
+      return renderFileUpload(field);
+    }
+
     switch (field.type) {
       case "select":
         return (
@@ -115,59 +194,19 @@ export function TrackingModal({
             placeholder={field.placeholder}
           />
         );
-      case "file":
-        return (
-          <div className="flex flex-col gap-2">
-            <div className="flex items-center gap-3">
-              <button
-                type="button"
-                onClick={() => document.getElementById(field.id)?.click()}
-                className="px-4 py-2 bg-blue-50 text-blue-700 rounded-full text-sm font-semibold hover:bg-blue-100 transition-colors"
-              >
-                {t("tracking.chooseFile")}
-              </button>
-              <span className="text-gray-400 text-sm truncate">
-                {previewUrl
-                  ? previewUrl.split("/").pop()
-                  : t("tracking.noFileSelected")}
-              </span>
-              <input
-                id={field.id}
-                name={field.id}
-                type="file"
-                className="hidden"
-                required={field.required}
-                accept={field.accept}
-                onChange={handleFileChange}
-              />
-            </div>
-            {previewUrl && (
-              <div className="mt-2">
-                <img
-                  src={previewUrl}
-                  alt="Preview"
-                  className="max-w-xs rounded"
-                />
-              </div>
-            )}
-          </div>
-        );
-      default:
+      case "text":
         return (
           <input
             id={field.id}
             name={field.id}
-            type={field.type}
-            className={inputClasses}
+            type="text"
+            className="w-full p-2 border rounded bg-black text-white"
             required={field.required}
             placeholder={field.placeholder}
-            defaultValue={
-              field.type === "datetime-local"
-                ? new Date().toISOString().slice(0, 16)
-                : undefined
-            }
           />
         );
+      default:
+        return null;
     }
   };
 

@@ -127,22 +127,10 @@ const TRACKING_FIELDS: Record<string, Field[]> = {
     { id: "notes", label: t("tracking.sleep.notes"), type: "textarea" },
   ],
   photo: [
-    { id: "url", label: t("tracking.photo.url"), type: "text" },
-    { id: "caption", label: t("tracking.photo.caption"), type: "text" },
     {
-      id: "takenOn",
-      label: t("tracking.photo.takenOn"),
-      type: "datetime-local",
-    },
-    {
-      id: "takenAt",
-      label: t("tracking.photo.takenAt"),
-      type: "datetime-local",
-    },
-    {
-      id: "uploadedAt",
-      label: t("tracking.photo.uploadedAt"),
-      type: "datetime-local",
+      id: "caption",
+      label: t("tracking.photo.caption"),
+      type: "text" as const,
     },
   ],
 };
@@ -207,7 +195,7 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
       event = await getSleep(request, eventId);
       break;
     case "photo":
-      event = await getPhoto(eventId);
+      event = await getPhoto(request, eventId);
       break;
   }
 
@@ -297,21 +285,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
           ? new Date(rawData.takenAt.toString())
           : undefined,
       };
-      await editPhoto(eventId, data);
-      break;
-    }
-    case "photo": {
-      const data: PhotoUpdateData = {
-        url: rawData.url?.toString() ?? null,
-        caption: rawData.caption?.toString() ?? null,
-        takenOn: rawData.takenOn
-          ? new Date(rawData.takenOn.toString())
-          : undefined,
-        takenAt: rawData.takenAt
-          ? new Date(rawData.takenAt.toString())
-          : undefined,
-      };
-      await editPhoto(eventId, data);
+      await editPhoto(request, eventId, data);
       break;
     }
   }

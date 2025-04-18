@@ -36,6 +36,7 @@ export const es: TranslationKeys = {
     notes: 'Notas',
     notesPlaceholder: 'Agregar notas adicionales...',
     chooseFile: 'Elegir archivo',
+    dragAndDrop: 'O arrastra y suelta tu foto aquí',
     noFileSelected: 'Ningún archivo seleccionado',
     elimination: {
       title: 'Eliminación',
@@ -88,13 +89,9 @@ export const es: TranslationKeys = {
     },
     photo: {
       title: 'Foto',
-      url: 'URL',
-      takenOn: 'Tomada el',
-      takenAt: 'Tomada en',
-      uploadedAt: 'Subida el',
       upload: 'Subir archivo',
       caption: 'Título',
-      notes: 'Notas'
+      captionPlaceholder: 'Agregar un título...',
     }
   },
   baby: {
