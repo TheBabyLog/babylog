@@ -1,78 +1,123 @@
-import { vi, describe, it, expect } from 'vitest';
-import { db } from '~/.server/db';
-import { createUser, verifyLogin } from '~/.server/user';
-import { hashPassword, verifyPassword } from '~/.server/auth';
+import { vi, describe, it, expect } from "vitest";
+import { createUser, verifyLogin } from "~/.server/user";
+import { hashPassword, verifyPassword } from "~/.server/auth";
+import type { PrismaClient, User } from "@prisma/client";
 
-vi.mock('~/.server/db', () => ({
-  db: {
-    user: {
-      create: vi.fn(),
-      findUnique: vi.fn()
-    }
-  }
-}));
+// Create a proper type for our mock functions
+type MockFunction = ReturnType<typeof vi.fn>;
 
-vi.mock('~/.server/auth', () => ({
+// Create a type for our mock Prisma client
+type MockPrismaClient = {
+  user: {
+    create: MockFunction;
+    findUnique: MockFunction;
+  };
+};
+
+// Create mock prisma client with proper typing
+const mockPrisma: MockPrismaClient = {
+  user: {
+    create: vi.fn(),
+    findUnique: vi.fn(),
+  },
+};
+
+// Mock auth functions
+vi.mock("~/.server/auth", () => ({
   hashPassword: vi.fn(),
-  verifyPassword: vi.fn()
+  verifyPassword: vi.fn(),
 }));
 
-describe('user service', () => {
-  it('creates user correctly', async () => {
-    const mockUser = {
+describe("user service", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("creates user correctly", async () => {
+    const mockUser: Partial<User> = {
       id: 1,
-      email: 'test@example.com',
-      passwordHash: 'hashedPassword123',
-      firstName: 'John',
-      lastName: 'Doe',
-      phone: '1234567890',
+      email: "test@example.com",
+      passwordHash: "hashedPassword123",
+      firstName: "John",
+      lastName: "Doe",
+      phone: "1234567890",
       createdAt: new Date(),
-      updatedAt: new Date()
+      updatedAt: new Date(),
     };
 
-    vi.mocked(hashPassword).mockResolvedValueOnce('hashedPassword123');
-    vi.mocked(db.user.create).mockResolvedValueOnce(mockUser);
-    
-    const result = await createUser({
-      email: 'test@example.com',
-      password: 'password123',
-      firstName: 'John',
-      lastName: 'Doe',
-      phone: '1234567890'
+    vi.mocked(hashPassword).mockResolvedValueOnce("hashedPassword123");
+    mockPrisma.user.create.mockResolvedValueOnce(mockUser);
+
+    const result = await createUser(mockPrisma as unknown as PrismaClient, {
+      email: "test@example.com",
+      password: "password123",
+      firstName: "John",
+      lastName: "Doe",
+      phone: "1234567890",
     });
 
     expect(result).toEqual(mockUser);
+    expect(mockPrisma.user.create).toHaveBeenCalledWith({
+      data: {
+        email: "test@example.com",
+        passwordHash: "hashedPassword123",
+        firstName: "John",
+        lastName: "Doe",
+        phone: "1234567890",
+      },
+    });
   });
 
-  it('verifies login correctly', async () => {
-    const mockUser = {
+  it("verifies login correctly", async () => {
+    const mockUser: Partial<User> & { passwordHash: string } = {
       id: 1,
-      email: 'test@example.com',
-      passwordHash: 'hashedPassword123',
-      firstName: 'John',
-      lastName: 'Doe',
-      phone: '1234567890',
-      createdAt: new Date(),
-      updatedAt: new Date()
+      email: "test@example.com",
+      passwordHash: "hashedPassword123",
+      firstName: "John",
+      lastName: "Doe",
+      phone: "1234567890",
     };
 
-    vi.mocked(db.user.findUnique).mockResolvedValueOnce(mockUser);
+    mockPrisma.user.findUnique.mockResolvedValueOnce(mockUser);
     vi.mocked(verifyPassword).mockResolvedValueOnce(true);
-    
-    const result = await verifyLogin('test@example.com', 'password123');
-    expect(result).toEqual(expect.objectContaining({
-      id: 1,
-      email: 'test@example.com',
-      firstName: 'John',
-      lastName: 'Doe',
-      phone: '1234567890'
-    }));
+
+    const result = await verifyLogin(
+      mockPrisma as unknown as PrismaClient,
+      "test@example.com",
+      "password123"
+    );
+
+    expect(result).toEqual(
+      expect.objectContaining({
+        id: 1,
+        email: "test@example.com",
+        firstName: "John",
+        lastName: "Doe",
+        phone: "1234567890",
+      })
+    );
+
+    expect(mockPrisma.user.findUnique).toHaveBeenCalledWith({
+      where: { email: "test@example.com" },
+      select: {
+        id: true,
+        email: true,
+        passwordHash: true,
+        firstName: true,
+        lastName: true,
+        phone: true,
+      },
+    });
   });
 
-  it('returns null for non-existent user', async () => {
-    vi.mocked(db.user.findUnique).mockResolvedValueOnce(null);
-    
-    const result = await verifyLogin('nonexistent@example.com', 'password123');
+  it("returns null for non-existent user", async () => {
+    mockPrisma.user.findUnique.mockResolvedValueOnce(null);
+
+    const result = await verifyLogin(
+      mockPrisma as unknown as PrismaClient,
+      "nonexistent@example.com",
+      "password123"
+    );
     expect(result).toBeNull();
   });
-}); 
+});

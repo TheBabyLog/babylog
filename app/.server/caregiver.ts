@@ -1,12 +1,13 @@
-import { db } from "./db";
+import type { PrismaClient } from "@prisma/client";
 
 export async function addCaregiver(
+  prisma: PrismaClient,
   babyId: number,
   userId: number,
   relationship: string,
   permissions: string[] = ["view", "log"]
 ) {
-  return db.babyCaregiver.create({
+  return prisma.babyCaregiver.create({
     data: {
       babyId,
       userId,
@@ -16,8 +17,12 @@ export async function addCaregiver(
   });
 }
 
-export async function removeCaregiver(babyId: number, userId: number) {
-  return db.babyCaregiver.delete({
+export async function removeCaregiver(
+  prisma: PrismaClient,
+  babyId: number,
+  userId: number
+) {
+  return prisma.babyCaregiver.delete({
     where: {
       babyId_userId: {
         babyId,
@@ -27,15 +32,24 @@ export async function removeCaregiver(babyId: number, userId: number) {
   });
 }
 
-export async function addBabyOwner(babyId: number, userId: number) {
-  return db.baby.update({
+export async function addBabyOwner(
+  prisma: PrismaClient,
+  babyId: number,
+  userId: number
+) {
+  return prisma.baby.update({
     where: { id: babyId },
     data: { ownerId: userId },
   });
 }
 
-export async function inviteNewCaregiver(babyId: number, email: string, senderId: number) {
-  return db.parentInvite.create({
+export async function inviteNewCaregiver(
+  prisma: PrismaClient,
+  babyId: number,
+  email: string,
+  senderId: number
+) {
+  return prisma.parentInvite.create({
     data: {
       email,
       babyId,

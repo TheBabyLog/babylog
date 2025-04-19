@@ -4,7 +4,8 @@ import { useActionData, Form } from "@remix-run/react";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { createUserSession, getUserId } from "~/.server/session";
 import { verifyLogin } from "~/.server/user";
-import { t } from '~/src/utils/translate';
+import { t } from "~/src/utils/translate";
+import { withPrismaAction } from "~/.server/db";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const userId = await getUserId(request);
@@ -12,22 +13,28 @@ export async function loader({ request }: LoaderFunctionArgs) {
   return null;
 }
 
-export async function action({ request }: ActionFunctionArgs) {
+export const action = withPrismaAction(async ({ request, prisma }) => {
   const formData = await request.formData();
   const email = formData.get("email");
   const password = formData.get("password");
 
   if (!email || !password) {
-    return json({ error: t('auth.errors.credentialsRequired') }, { status: 400 });
+    return json(
+      { error: t("auth.errors.credentialsRequired") },
+      { status: 400 }
+    );
   }
 
-  const user = await verifyLogin(email.toString(), password.toString());
+  const user = await verifyLogin(prisma, email.toString(), password.toString());
   if (!user) {
-    return json({ error: t('auth.errors.invalidCredentials') }, { status: 400 });
+    return json(
+      { error: t("auth.errors.invalidCredentials") },
+      { status: 400 }
+    );
   }
 
   return createUserSession(user.id, "/dashboard");
-}
+});
 
 export default function Login() {
   const actionData = useActionData<typeof action>();
@@ -37,7 +44,7 @@ export default function Login() {
   return (
     <div className="min-h-screen flex items-center justify-center">
       <Form method="post" className="w-full max-w-md p-6">
-        <h1 className="text-2xl font-bold mb-6">{t('auth.loginTitle')}</h1>
+        <h1 className="text-2xl font-bold mb-6">{t("auth.loginTitle")}</h1>
 
         {actionData?.error && (
           <div className="text-red-600 mb-4">{actionData.error}</div>
@@ -45,7 +52,7 @@ export default function Login() {
 
         <div className="mb-4">
           <label htmlFor="email" className="block mb-2">
-            {t('auth.emailLabel')}
+            {t("auth.emailLabel")}
           </label>
           <input
             id="email"
@@ -59,7 +66,7 @@ export default function Login() {
 
         <div className="mb-4">
           <label htmlFor="password" className="block mb-2">
-            {t('auth.passwordLabel')}
+            {t("auth.passwordLabel")}
           </label>
           <input
             id="password"
@@ -75,14 +82,14 @@ export default function Login() {
           type="submit"
           className="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
         >
-          {t('auth.loginButton')}
+          {t("auth.loginButton")}
         </button>
       </Form>
 
       <div className="mt-4 text-center">
-        <span className="text-gray-300">{t('auth.signupPrompt')} </span>
+        <span className="text-gray-300">{t("auth.signupPrompt")} </span>
         <a href="/register" className="text-blue-400 hover:text-blue-300">
-          {t('auth.signup')}
+          {t("auth.signup")}
         </a>
       </div>
     </div>

@@ -1,60 +1,111 @@
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient } from "@prisma/client/edge";
 import { PrismaNeon } from "@prisma/adapter-neon";
+import type {
+  LoaderFunctionArgs,
+  ActionFunctionArgs,
+} from "@remix-run/cloudflare";
 
-// Create a variable to hold our database client
-let db: PrismaClient;
-
-// Add a type definition to the global scope to enable singleton pattern
-// This prevents creating multiple database connections during development
-declare global {
-  // eslint-disable-next-line no-var
-  var __db__: PrismaClient | undefined;
+// Type for environment with DATABASE_URL
+interface EnvWithDB {
+  DATABASE_URL: string;
 }
 
-// Check the environment we're running in
-if (typeof process === "undefined" || !process.env.NODE_ENV) {
-  // This branch executes when running in Cloudflare environment
-  // Cloudflare doesn't have a 'process' object like Node.js does
+// Global variable for development environment caching
+let prismaForNode: PrismaClient | undefined;
 
-  // Access the environment variables from Cloudflare's globalThis.ENVIRONMENT
-  // Type assertion needed to make TypeScript happy with this non-standard structure
-  const globalEnv = (
-    globalThis as unknown as Record<string, Record<string, string>>
-  )?.env;
-
-  // Get the DATABASE_URL from Cloudflare environment variables
-  const connectionString = globalEnv?.DATABASE_URL;
-
-  if (connectionString) {
-    // Initialize Neon adapter with the connection string
-    // This allows Prisma to connect to Neon database from Cloudflare
-    const adapter = new PrismaNeon({ connectionString });
-
-    // Create Prisma client with the Neon adapter
-    db = new PrismaClient({ adapter });
+/**
+ * Creates or returns a Prisma client
+ * Works in both Cloudflare and Node.js environments
+ */
+export function getPrismaClient(env: EnvWithDB) {
+  // Check if we're in Node.js environment
+  if (typeof process !== "undefined" && process.env.NODE_ENV) {
+    // For Node.js, use a singleton pattern
+    if (!prismaForNode) {
+      // In development, use standard Prisma connection
+      if (process.env.NODE_ENV !== "production") {
+        prismaForNode = new PrismaClient();
+      } else {
+        // In production Node.js, use Neon adapter
+        const adapter = new PrismaNeon({
+          connectionString: env.DATABASE_URL,
+        });
+        prismaForNode = new PrismaClient({ adapter });
+      }
+    }
+    return prismaForNode;
   } else {
-    // Error handling if DATABASE_URL is not found
-    throw new Error("DATABASE_URL not found in Cloudflare environment");
+    // For Cloudflare, create a new client each time
+    const adapter = new PrismaNeon({
+      connectionString: env.DATABASE_URL,
+    });
+    return new PrismaClient({ adapter });
   }
-}
-// Node.js environment handling
-else if (process.env.NODE_ENV === "production") {
-  // In production Node.js environment, create a new Prisma client
-  // This will use the DATABASE_URL from .env file
-  db = new PrismaClient();
-} else {
-  // Development environment (local Node.js)
-  // Use singleton pattern to prevent multiple connections during development
-  // This helps avoid "too many connections" errors during hot reloading
-  if (!global.__db__) {
-    // If no global client exists, create one
-    global.__db__ = new PrismaClient();
-  }
-  // Use the existing client
-  db = global.__db__;
-  // Ensure connection is established
-  db.$connect();
 }
 
-// Export the database client to be imported by other files
-export { db };
+// Type for loader functions with Prisma
+export type LoaderWithPrisma<T = unknown> = (
+  args: LoaderFunctionArgs & { prisma: PrismaClient }
+) => Promise<T>;
+
+// Type for action functions with Prisma
+export type ActionWithPrisma<T = unknown> = (
+  args: ActionFunctionArgs & { prisma: PrismaClient }
+) => Promise<T>;
+
+/**
+ * Higher-order function that injects a Prisma client into loader functions
+ */
+export function withPrisma<T = unknown>(loaderFn: LoaderWithPrisma<T>) {
+  return async (args: LoaderFunctionArgs): Promise<T> => {
+    const env: EnvWithDB = {
+      DATABASE_URL:
+        (args.context?.env as EnvWithDB | undefined)?.DATABASE_URL ||
+        process.env.DATABASE_URL ||
+        "",
+    };
+    const prisma = getPrismaClient({
+      DATABASE_URL: env.DATABASE_URL || "",
+    });
+
+    try {
+      return await loaderFn({ ...args, prisma });
+    } finally {
+      // Only disconnect in Cloudflare environment
+      if (typeof process === "undefined") {
+        await prisma.$disconnect();
+      }
+    }
+  };
+}
+
+/**
+ * Higher-order function that injects a Prisma client into action functions
+ */
+export function withPrismaAction<T = unknown>(actionFn: ActionWithPrisma<T>) {
+  return async (args: ActionFunctionArgs): Promise<T> => {
+    const env: EnvWithDB = {
+      DATABASE_URL:
+        (args.context?.env as EnvWithDB | undefined)?.DATABASE_URL ||
+        process.env.DATABASE_URL ||
+        "",
+    };
+    const prisma = getPrismaClient(env);
+
+    try {
+      return await actionFn({ ...args, prisma });
+    } finally {
+      // Only disconnect in Cloudflare environment
+      if (typeof process === "undefined") {
+        await prisma.$disconnect();
+      }
+    }
+  };
+}
+
+// For backward compatibility with imports expecting default export
+export default {
+  getPrismaClient,
+  withPrisma,
+  withPrismaAction,
+};
