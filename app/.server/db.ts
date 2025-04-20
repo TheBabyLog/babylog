@@ -45,10 +45,7 @@ export function getPrismaClient(env: EnvWithDB) {
       const adapter = new PrismaNeon({
         connectionString: env.DATABASE_URL,
       });
-      return new StandardPrismaClient({ adapter });
-    } else {
-      // Fallback to edge client without adapter
-      return new EdgePrismaClient();
+      return new EdgePrismaClient({ adapter });
     }
   }
 }
