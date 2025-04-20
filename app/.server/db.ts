@@ -1,8 +1,4 @@
-import {
-  PrismaClient,
-  PrismaClient as StandardPrismaClient,
-} from "@prisma/client";
-import { PrismaClient as EdgePrismaClient } from "@prisma/client/edge";
+import { PrismaClient } from "@prisma/client";
 import { PrismaNeon } from "@prisma/adapter-neon";
 import type {
   LoaderFunctionArgs,
@@ -15,7 +11,7 @@ interface EnvWithDB {
 }
 
 // Global variable for development environment caching
-let prismaForNode: StandardPrismaClient | null = null;
+let prismaForNode: PrismaClient | null = null;
 
 /**
  * Creates or returns a Prisma client
@@ -28,13 +24,13 @@ export function getPrismaClient(env: EnvWithDB) {
     if (!prismaForNode) {
       // In development, use standard Prisma connection
       if (process.env.NODE_ENV !== "production") {
-        prismaForNode = new StandardPrismaClient();
+        prismaForNode = new PrismaClient();
       } else {
         // In production Node.js, use Neon adapter
         const adapter = new PrismaNeon({
           connectionString: env.DATABASE_URL,
         });
-        prismaForNode = new StandardPrismaClient({ adapter });
+        prismaForNode = new PrismaClient({ adapter });
       }
     }
     return prismaForNode;
@@ -45,7 +41,11 @@ export function getPrismaClient(env: EnvWithDB) {
       const adapter = new PrismaNeon({
         connectionString: env.DATABASE_URL,
       });
-      return new EdgePrismaClient({ adapter });
+
+      const prisma = new PrismaClient({ adapter });
+      // Set the Prisma client to the global context for reuse
+
+      return prisma;
     }
   }
 }
