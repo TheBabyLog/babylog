@@ -1,5 +1,8 @@
-import { PrismaClient } from "@prisma/client";
-import { neon } from "@neondatabase/serverless";
+import {
+  PrismaClient,
+  PrismaClient as StandardPrismaClient,
+} from "@prisma/client";
+import { PrismaClient as EdgePrismaClient } from "@prisma/client/edge";
 import { PrismaNeon } from "@prisma/adapter-neon";
 import type {
   LoaderFunctionArgs,
@@ -12,7 +15,7 @@ interface EnvWithDB {
 }
 
 // Global variable for development environment caching
-let prismaForNode: PrismaClient | undefined;
+let prismaForNode: StandardPrismaClient | null = null;
 
 /**
  * Creates or returns a Prisma client
@@ -25,22 +28,28 @@ export function getPrismaClient(env: EnvWithDB) {
     if (!prismaForNode) {
       // In development, use standard Prisma connection
       if (process.env.NODE_ENV !== "production") {
-        prismaForNode = new PrismaClient();
+        prismaForNode = new StandardPrismaClient();
       } else {
         // In production Node.js, use Neon adapter
-        const sql = neon(env.DATABASE_URL);
-        const adapter = new PrismaNeon(sql);
-        prismaForNode = new PrismaClient({ adapter });
+        const adapter = new PrismaNeon({
+          connectionString: env.DATABASE_URL,
+        });
+        prismaForNode = new StandardPrismaClient({ adapter });
       }
     }
     return prismaForNode;
   } else {
-    // For Cloudflare, create a new client each time
-    // Using Neon adapter which is designed to work with Cloudflare Workers
-    const sql = neon(env.DATABASE_URL);
-    const adapter = new PrismaNeon(sql);
-    // Pass adapter to PrismaClient
-    return new PrismaClient({ adapter });
+    // For Edge environments (Cloudflare)
+    if (env.DATABASE_URL) {
+      // If we have a database URL, use adapter with standard client
+      const adapter = new PrismaNeon({
+        connectionString: env.DATABASE_URL,
+      });
+      return new StandardPrismaClient({ adapter });
+    } else {
+      // Fallback to edge client without adapter
+      return new EdgePrismaClient();
+    }
   }
 }
 
