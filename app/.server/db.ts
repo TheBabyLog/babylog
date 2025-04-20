@@ -1,4 +1,4 @@
-import { PrismaClient } from "@prisma/client/edge";
+import { PrismaClient } from "@prisma/client";
 import { PrismaNeon } from "@prisma/adapter-neon";
 import type {
   LoaderFunctionArgs,
@@ -69,7 +69,7 @@ export function withPrisma<T = unknown>(loaderFn: LoaderWithPrisma<T>) {
     });
 
     try {
-      return await loaderFn({ ...args, prisma });
+      return await loaderFn({ prisma, ...args });
     } finally {
       // Only disconnect in Cloudflare environment
       if (typeof process === "undefined") {
@@ -93,7 +93,7 @@ export function withPrismaAction<T = unknown>(actionFn: ActionWithPrisma<T>) {
     const prisma = getPrismaClient(env);
 
     try {
-      return await actionFn({ ...args, prisma });
+      return await actionFn({ prisma, ...args });
     } finally {
       // Only disconnect in Cloudflare environment
       if (typeof process === "undefined") {
