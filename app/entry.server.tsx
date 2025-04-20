@@ -7,6 +7,7 @@
 import { RemixServer } from "@remix-run/react";
 import type { EntryContext } from "@remix-run/cloudflare";
 import { renderToString } from "react-dom/server";
+import { prisma } from "./prisma.server";
 
 export default function handleRequest(
   request: Request,
@@ -14,7 +15,8 @@ export default function handleRequest(
   responseHeaders: Headers,
   remixContext: EntryContext
 ) {
-  // Note we removed the loadContext parameter entirely to avoid the unused variable
+  // Initialize Prisma client for this request
+  const prismaClient = prisma;
 
   // Use the simple renderToString approach which is most compatible
   const markup = renderToString(

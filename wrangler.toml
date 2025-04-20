@@ -12,9 +12,7 @@ pages_build_output_dir = "./build/client"
 
 # Environment variables (non-sensitive ones)
 [vars]
-# Add any non-sensitive environment variables here
-# Example:
-# API_URL = "https://api.example.com"
+NODE_ENV = "production"
 
 # For local development with Wrangler
 [dev]

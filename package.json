@@ -4,11 +4,11 @@
   "sideEffects": false,
   "type": "module",
   "scripts": {
-    "build": "remix vite:build",
+    "build": "prisma generate && remix vite:build",
     "dev": "remix vite:dev",
     "lint": "eslint --ignore-path .gitignore --cache --cache-location ./node_modules/.cache/eslint .",
     "start": "wrangler pages dev ./build/client",
-    "deploy": "wrangler pages deploy ./build/client",
+    "deploy": "prisma generate && wrangler pages deploy ./build/client",
     "test": "vitest",
     "test:watch": "vitest watch",
     "typecheck": "tsc",
