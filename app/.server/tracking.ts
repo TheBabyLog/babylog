@@ -1,4 +1,4 @@
-import { db } from "./db";
+import type { PrismaClient } from "@prisma/client";
 
 interface EliminationData {
   babyId: number;
@@ -32,8 +32,11 @@ interface SleepData {
   notes?: string | null;
 }
 
-export async function trackElimination(data: EliminationData) {
-  return db.elimination.create({
+export async function trackElimination(
+  prisma: PrismaClient,
+  data: EliminationData
+) {
+  return prisma.elimination.create({
     data: {
       ...data,
       success: true, // Required by schema
@@ -41,33 +44,37 @@ export async function trackElimination(data: EliminationData) {
   });
 }
 
-export async function trackFeeding(data: FeedingData) {
-  return db.feeding.create({
+export async function trackFeeding(prisma: PrismaClient, data: FeedingData) {
+  return prisma.feeding.create({
     data: data,
   });
 }
 
-export async function trackSleep(data: SleepData) {
-  return db.sleep.create({
+export async function trackSleep(prisma: PrismaClient, data: SleepData) {
+  return prisma.sleep.create({
     data: data,
   });
 }
 
-export async function getRecentTrackingEvents(babyId: number, limit: number = 5) {
+export async function getRecentTrackingEvents(
+  prisma: PrismaClient,
+  babyId: number,
+  limit: number = 5
+) {
   const [eliminations, feedings, sleepSessions] = await Promise.all([
-    db.elimination.findMany({
+    prisma.elimination.findMany({
       where: { babyId },
-      orderBy: { timestamp: 'desc' },
+      orderBy: { timestamp: "desc" },
       take: limit,
     }),
-    db.feeding.findMany({
+    prisma.feeding.findMany({
       where: { babyId },
-      orderBy: { startTime: 'desc' },
+      orderBy: { startTime: "desc" },
       take: limit,
     }),
-    db.sleep.findMany({
+    prisma.sleep.findMany({
       where: { babyId },
-      orderBy: { startTime: 'desc' },
+      orderBy: { startTime: "desc" },
       take: limit,
     }),
   ]);
@@ -77,4 +84,4 @@ export async function getRecentTrackingEvents(babyId: number, limit: number = 5)
     feedings,
     sleepSessions,
   };
-} 
+}

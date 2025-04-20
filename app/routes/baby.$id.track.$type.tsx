@@ -1,127 +1,133 @@
-import { ActionFunctionArgs, LoaderFunctionArgs, json, redirect } from "@remix-run/node";
+import {
+  ActionFunctionArgs,
+  LoaderFunctionArgs,
+  json,
+  redirect,
+} from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import { getBaby } from "~/.server/baby";
+import { withPrisma } from "~/.server/db";
 import { requireUserId } from "~/.server/session";
 import { trackElimination, trackFeeding, trackSleep } from "~/.server/tracking";
 import { TrackingModal } from "~/components/tracking/TrackingModal";
-import { t } from '~/src/utils/translate';
+import { t } from "~/src/utils/translate";
 
-type TrackingType = 'elimination' | 'feeding' | 'sleep';
+type TrackingType = "elimination" | "feeding" | "sleep";
 
 function getTrackingConfig(type: TrackingType) {
   const configs = {
     elimination: {
-      title: t('tracking.elimination.title'),
+      title: t("tracking.elimination.title"),
       fields: [
         {
           id: "timestamp",
-          label: t('tracking.when'),
+          label: t("tracking.when"),
           type: "datetime-local" as const,
-          required: true
+          required: true,
         },
         {
           id: "type",
-          label: t('tracking.type'),
+          label: t("tracking.type"),
           type: "select" as const,
           required: true,
           options: [
-            { value: "wet", label: t('tracking.elimination.types.wet') },
-            { value: "dirty", label: t('tracking.elimination.types.dirty') },
-            { value: "both", label: t('tracking.elimination.types.both') }
-          ]
+            { value: "wet", label: t("tracking.elimination.types.wet") },
+            { value: "dirty", label: t("tracking.elimination.types.dirty") },
+            { value: "both", label: t("tracking.elimination.types.both") },
+          ],
         },
         {
           id: "weight",
-          label: t('tracking.elimination.weight'),
-          type: "number" as const
+          label: t("tracking.elimination.weight"),
+          type: "number" as const,
         },
         {
           id: "notes",
-          label: t('tracking.notes'),
+          label: t("tracking.notes"),
           type: "textarea" as const,
-          placeholder: t('tracking.notesPlaceholder')
-        }
-      ]
+          placeholder: t("tracking.notesPlaceholder"),
+        },
+      ],
     },
     feeding: {
-      title: t('tracking.feeding.title'),
+      title: t("tracking.feeding.title"),
       fields: [
         {
           id: "timestamp",
-          label: t('tracking.when'),
+          label: t("tracking.when"),
           type: "datetime-local" as const,
-          required: true
+          required: true,
         },
         {
           id: "type",
-          label: t('tracking.type'),
+          label: t("tracking.type"),
           type: "select" as const,
           required: true,
           options: [
-            { value: "breast", label: t('tracking.feeding.types.breast') },
-            { value: "bottle", label: t('tracking.feeding.types.bottle') },
-            { value: "formula", label: t('tracking.feeding.types.formula') }
-          ]
+            { value: "breast", label: t("tracking.feeding.types.breast") },
+            { value: "bottle", label: t("tracking.feeding.types.bottle") },
+            { value: "formula", label: t("tracking.feeding.types.formula") },
+          ],
         },
         {
           id: "amount",
-          label: t('tracking.feeding.amount'),
-          type: "number" as const
+          label: t("tracking.feeding.amount"),
+          type: "number" as const,
         },
         {
           id: "notes",
-          label: t('tracking.notes'),
+          label: t("tracking.notes"),
           type: "textarea" as const,
-          placeholder: t('tracking.notesPlaceholder')
-        }
-      ]
+          placeholder: t("tracking.notesPlaceholder"),
+        },
+      ],
     },
     sleep: {
-      title: t('tracking.sleep.title'),
+      title: t("tracking.sleep.title"),
       fields: [
         {
           id: "startTime",
-          label: t('tracking.sleep.startTime'),
+          label: t("tracking.sleep.startTime"),
           type: "datetime-local" as const,
-          required: true
+          required: true,
         },
         {
           id: "endTime",
-          label: t('tracking.sleep.endTime'),
+          label: t("tracking.sleep.endTime"),
           type: "datetime-local" as const,
-          required: true
+          required: true,
         },
         {
           id: "how",
-          label: t('tracking.sleep.how'),
+          label: t("tracking.sleep.how"),
           type: "text" as const,
           required: false,
         },
         {
           id: "whereFellAsleep",
-          label: t('tracking.sleep.whereFellAsleep'),
+          label: t("tracking.sleep.whereFellAsleep"),
           type: "text" as const,
           required: false,
         },
         {
           id: "whereSlept",
-          label: t('tracking.sleep.whereSlept'),
+          label: t("tracking.sleep.whereSlept"),
           type: "text" as const,
           required: false,
         },
         {
           id: "type",
-          label: t('tracking.type'),
+          label: t("tracking.type"),
           type: "select" as const,
           required: true,
           options: [
-            { value: "nap", label: t('tracking.sleep.types.nap') },
-            { value: "night", label: t('tracking.sleep.types.night') }
-          ]
+            { value: "nap", label: t("tracking.sleep.types.nap") },
+            { value: "night", label: t("tracking.sleep.types.night") },
+          ],
         },
         {
           id: "quality",
-          label: t('tracking.sleep.quality'),
+          label: t("tracking.sleep.quality"),
           type: "select" as const,
           required: false,
           options: [
@@ -129,30 +135,31 @@ function getTrackingConfig(type: TrackingType) {
             { value: "2", label: "★★" },
             { value: "3", label: "★★★" },
             { value: "4", label: "★★★★" },
-            { value: "5", label: "★★★★★" }
-          ]
+            { value: "5", label: "★★★★★" },
+          ],
         },
         {
           id: "notes",
-          label: t('tracking.notes'),
+          label: t("tracking.notes"),
           type: "textarea" as const,
-          placeholder: t('tracking.notesPlaceholder')
-        }
-      ]
-    }
+          placeholder: t("tracking.notesPlaceholder"),
+        },
+      ],
+    },
   };
-  
+
   return configs[type];
 }
 
-export async function loader({ request, params }: LoaderFunctionArgs) {
+export const loader = withPrisma(async ({ request, prisma, params }) => {
   const userId = await requireUserId(request);
-  const baby = await getBaby(Number(params.id));
-  
+  const baby = await getBaby(prisma, Number(params.id));
+
   if (!baby) return redirect("/dashboard");
-  const isAuthorized = baby.ownerId === userId || 
+  const isAuthorized =
+    baby.ownerId === userId ||
     baby.caregivers.some((c: { userId: number }) => c.userId === userId);
-  
+
   if (!isAuthorized) return redirect("/dashboard");
 
   const type = params.type as TrackingType;
@@ -161,13 +168,13 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   }
 
   return json({ baby, trackingConfig: getTrackingConfig(type) });
-}
+});
 
 export async function action({ request, params }: ActionFunctionArgs) {
   const formData = await request.formData();
   const type = params.type as TrackingType;
   const babyId = Number(params.id);
-  
+
   const baseData = {
     babyId,
     type: formData.get("type") as string,
@@ -177,25 +184,27 @@ export async function action({ request, params }: ActionFunctionArgs) {
   const timestamp = new Date(formData.get("timestamp") as string);
 
   switch (type) {
-    case 'elimination':
+    case "elimination":
       await trackElimination({
         ...baseData,
         timestamp,
         weight: formData.get("weight") ? Number(formData.get("weight")) : null,
       });
       break;
-    case 'feeding':
+    case "feeding":
       await trackFeeding({
         ...baseData,
         startTime: timestamp,
         amount: formData.get("amount") ? Number(formData.get("amount")) : null,
       });
       break;
-    case 'sleep':
+    case "sleep":
       await trackSleep({
         ...baseData,
         startTime: timestamp,
-        quality: formData.get("quality") ? Number(formData.get("quality")) : null,
+        quality: formData.get("quality")
+          ? Number(formData.get("quality"))
+          : null,
       });
       break;
     default:
@@ -208,11 +217,11 @@ export async function action({ request, params }: ActionFunctionArgs) {
 export default function TrackEvent() {
   const { baby, trackingConfig } = useLoaderData<typeof loader>();
   const type = trackingConfig.title.toLowerCase() as TrackingType;
-  
+
   const config = getTrackingConfig(type);
-  
+
   return (
-    <TrackingModal 
+    <TrackingModal
       babyId={baby.id}
       title={config.title}
       fields={config.fields}
