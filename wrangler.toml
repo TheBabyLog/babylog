@@ -9,11 +9,6 @@ compatibility_flags = ["nodejs_compat"]
 
 pages_build_output_dir = "./build/client"
 
-
-# Environment variables (non-sensitive ones)
-[vars]
-NODE_ENV = "production"
-
 # For local development with Wrangler
 [dev]
 port = 8788
