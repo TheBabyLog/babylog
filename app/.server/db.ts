@@ -1,4 +1,5 @@
 import { PrismaClient } from "@prisma/client";
+import { neon } from "@neondatabase/serverless";
 import { PrismaNeon } from "@prisma/adapter-neon";
 import type {
   LoaderFunctionArgs,
@@ -27,18 +28,18 @@ export function getPrismaClient(env: EnvWithDB) {
         prismaForNode = new PrismaClient();
       } else {
         // In production Node.js, use Neon adapter
-        const adapter = new PrismaNeon({
-          connectionString: env.DATABASE_URL,
-        });
+        const sql = neon(env.DATABASE_URL);
+        const adapter = new PrismaNeon(sql);
         prismaForNode = new PrismaClient({ adapter });
       }
     }
     return prismaForNode;
   } else {
     // For Cloudflare, create a new client each time
-    const adapter = new PrismaNeon({
-      connectionString: env.DATABASE_URL,
-    });
+    // Using Neon adapter which is designed to work with Cloudflare Workers
+    const sql = neon(env.DATABASE_URL);
+    const adapter = new PrismaNeon(sql);
+    // Pass adapter to PrismaClient
     return new PrismaClient({ adapter });
   }
 }

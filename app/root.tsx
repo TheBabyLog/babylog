@@ -8,6 +8,8 @@ import {
   useLoaderData,
   Link,
   useLocation,
+  isRouteErrorResponse,
+  useRouteError,
 } from "@remix-run/react";
 import type { LinksFunction, LoaderFunctionArgs } from "@remix-run/node";
 import { getCurrentLanguage, setLanguage } from "~/src/utils/translate";
@@ -95,6 +97,50 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <ScrollRestoration />
         <Scripts />
         <LiveReload />
+      </body>
+    </html>
+  );
+}
+
+// Error boundary that doesn't use useLoaderData
+export function ErrorBoundary() {
+  const error = useRouteError();
+  
+  let errorMessage = "An unexpected error occurred";
+  
+  if (isRouteErrorResponse(error)) {
+    errorMessage = `${error.status} ${error.statusText}`;
+  } else if (error instanceof Error) {
+    errorMessage = error.message;
+  }
+  
+  // Simple error boundary that doesn't depend on loader data
+  return (
+    <html lang="en">
+      <head>
+        <meta charSet="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <Meta />
+        <Links />
+        <title>Error</title>
+      </head>
+      <body>
+        <div className="min-h-screen flex items-center justify-center p-4">
+          <div className="bg-white p-8 rounded-lg shadow-md max-w-md w-full">
+            <h1 className="text-2xl font-bold text-red-600 mb-4">Error</h1>
+            <p className="text-gray-700 mb-4">{errorMessage}</p>
+            <p className="mb-4">
+              Try refreshing the page or contact support if the problem persists.
+            </p>
+            <a 
+              href="/"
+              className="inline-block bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+            >
+              Go to Homepage
+            </a>
+          </div>
+        </div>
+        <Scripts />
       </body>
     </html>
   );
