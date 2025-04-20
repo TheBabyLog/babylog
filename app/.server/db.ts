@@ -33,6 +33,11 @@ export function getPrismaClient(env: EnvWithDB) {
         prismaForNode = new PrismaClient({ adapter });
       }
     }
+
+    console.log("Using Prisma client for Node.js");
+    console.log("Prisma client:", prismaForNode);
+    console.log("Nove Environment:", process.env.NODE_ENV);
+    console.log("Database URL:", env.DATABASE_URL);
     return prismaForNode;
   } else {
     // For Edge environments (Cloudflare)
@@ -44,6 +49,11 @@ export function getPrismaClient(env: EnvWithDB) {
 
       const prisma = new PrismaClient({ adapter });
       // Set the Prisma client to the global context for reuse
+
+      console.log("Using Prisma client for Cloudflare");
+      console.log("Prisma client:", prisma);
+      console.log("Cloudflare Environment");
+      console.log("Database URL:", env.DATABASE_URL);
 
       return prisma;
     }
