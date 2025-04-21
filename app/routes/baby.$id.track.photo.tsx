@@ -1,4 +1,4 @@
-import { useMemo, useCallback } from "react";
+import { useMemo } from "react";
 import {
   ActionFunctionArgs,
   LoaderFunctionArgs,
@@ -75,6 +75,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
         url: s3Url,
         caption,
         timestamp: new Date(),
+        babyId,
       });
 
       return redirect(`/baby/${babyId}`);

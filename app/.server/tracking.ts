@@ -38,6 +38,7 @@ interface PhotoData {
   url: string;
   caption?: string;
   timestamp: Date;
+  babyId: number;
 }
 
 export interface EliminationUpdateData {
@@ -103,9 +104,22 @@ export async function trackSleep(request: Request, data: SleepData) {
 
 export async function trackPhoto(request: Request, data: PhotoData) {
   await requireUserId(request);
-  return db.photo.create({
-    data: data,
+  
+  // First create the photo
+  const photo = await db.photo.create({
+    data: {
+      url: data.url,
+      caption: data.caption,
+      timestamp: data.timestamp,
+      babyPhotos: {
+        create: {
+          babyId: data.babyId,
+        },
+      },
+    },
   });
+
+  return photo;
 }
 
 export async function editElimination(request: Request, id: number, data: EliminationUpdateData) {
