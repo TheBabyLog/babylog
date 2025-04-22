@@ -1,3 +1,4 @@
+
 export const en = {
   common: {
     welcome: 'Welcome',
@@ -33,26 +34,47 @@ export const en = {
     type: 'Type',
     notes: 'Notes',
     notesPlaceholder: 'Add any additional notes...',
+    chooseFile: 'Choose File',
+    dragAndDrop: 'Or drag and drop your photo here',
+    noFileSelected: 'No file selected',
     elimination: {
       title: 'Elimination',
+      type: 'Type',
+      time: 'Time',
       weight: 'Weight (g)',
+      location: 'Location',
+      notes: 'Notes',
       types: {
         wet: 'Wet',
         dirty: 'Dirty',
+        mixed: 'Mixed',
         both: 'Both'
       }
     },
     feeding: {
       title: 'Feeding',
+      type: 'Type',
+      startTime: 'Start Time',
+      endTime: 'End Time',
+      side: 'Side',
       amount: 'Amount (ml)',
+      food: 'Food',
+      notes: 'Notes',
       types: {
         breast: 'Breast',
         bottle: 'Bottle',
-        formula: 'Formula'
+        formula: 'Formula',
+        solid: 'Solid'
+      },
+      sides: {
+        left: 'Left',
+        right: 'Right'
       }
     },
     sleep: {
       title: 'Sleep',
+      type: 'Type',
+      notes: 'Notes',
       startTime: 'Start Time',
       endTime: 'End Time',
       how: 'How',
@@ -63,6 +85,12 @@ export const en = {
         nap: 'Nap',
         night: 'Night Sleep'
       }
+    },
+    photo: {
+      title: 'Photo',
+      upload: 'Upload File',
+      caption: 'Caption',
+      captionPlaceholder: 'Add a caption...',
     }
   },
   baby: {
@@ -71,18 +99,21 @@ export const en = {
     recent: {
       eliminations: 'Recent Eliminations',
       feedings: 'Recent Feedings',
-      sleep: 'Recent Sleep',
+      sleeps: 'Recent Sleep',
       viewAll: 'View All',
+      photos: 'Recent Photos',
       noData: {
         eliminations: 'No eliminations recorded',
         feedings: 'No feedings recorded',
-        sleep: 'No sleep sessions recorded'
+        sleeps: 'No sleep sessions recorded',
+        photos: 'No photos uploaded'
       }
     },
     details: {
       weight: 'Weight',
       amount: 'Amount',
-      quality: 'Quality'
+      quality: 'Quality',
+      caption: 'Caption',
     }
   },
   newBaby: {

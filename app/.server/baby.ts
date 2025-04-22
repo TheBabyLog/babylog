@@ -6,7 +6,7 @@ export async function createBaby(
     ownerId: number,
     data: Pick<Baby, "firstName" | "lastName" | "dateOfBirth" | "gender">
 ) {
-    return db.baby.create({
+    const baby= db.baby.create({
         data: {
             ...data,
             ownerId,
@@ -30,6 +30,14 @@ export async function createBaby(
             }
         }
     });
+    db.album.create({
+        data: {
+            title:data.firstName,
+            babyId:(await baby).id
+        }
+
+    })
+    return baby
 }
 
 export async function getBaby(id: number, options: Partial<Parameters<typeof db.baby.findUnique>[0]> = {}) {

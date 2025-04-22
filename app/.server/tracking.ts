@@ -33,6 +33,14 @@ interface SleepData {
   notes?: string | null;
 }
 
+interface PhotoData {
+  id: number;
+  url: string;
+  caption?: string;
+  timestamp: Date;
+  babyId: number;
+}
+
 export interface EliminationUpdateData {
   type?: string;
   timestamp?: Date;
@@ -62,6 +70,14 @@ export interface SleepUpdateData {
   notes?: string | null;
 }
 
+export interface PhotoUpdateData {
+  id?: number;
+  url?: string;
+  caption?: string;
+  takenOn?: Date; 
+  takenAt?: Date; 
+}
+
 export async function trackElimination(request: Request, data: EliminationData) {
   await requireUserId(request);
   return db.elimination.create({
@@ -84,6 +100,26 @@ export async function trackSleep(request: Request, data: SleepData) {
   return db.sleep.create({
     data: data,
   });
+}
+
+export async function trackPhoto(request: Request, data: PhotoData) {
+  await requireUserId(request);
+  
+  // First create the photo
+  const photo = await db.photo.create({
+    data: {
+      url: data.url,
+      caption: data.caption,
+      timestamp: data.timestamp,
+      babyPhotos: {
+        create: {
+          babyId: data.babyId,
+        },
+      },
+    },
+  });
+
+  return photo;
 }
 
 export async function editElimination(request: Request, id: number, data: EliminationUpdateData) {
@@ -110,9 +146,24 @@ export async function editSleep(request: Request, id: number, data: SleepUpdateD
   });
 }
 
+export async function editPhoto(request: Request, id: number, data: PhotoUpdateData) {
+  await requireUserId(request);
+  return db.photo.update({
+    where: { id },
+    data
+  });
+}
+
+export async function deletePhoto(request: Request, id: number) {
+  await requireUserId(request);
+  return db.photo.delete({
+    where: { id }
+  });
+}
+
 export async function getRecentTrackingEvents(request: Request, babyId: number, limit: number = 5) {
   const userId = await requireUserId(request);
-  const [eliminations, feedings, sleepSessions] = await Promise.all([
+  const [eliminations, feedings, sleepSessions, photos] = await Promise.all([
     db.elimination.findMany({
       where: { babyId },
       orderBy: { timestamp: 'desc' },
@@ -128,12 +179,27 @@ export async function getRecentTrackingEvents(request: Request, babyId: number, 
       orderBy: { startTime: 'desc' },
       take: limit,
     }),
-  ]);
+    db.photo.findMany({
+      where: {
+        albumPhotos: {
+          some: {
+            album: {
+              babyId
+            }
+          }
+        }
+      },
+      orderBy: {
+        createdAt: 'desc'
+      },
+      take: limit,
+  })]);
 
   return {
     eliminations,
     feedings,
     sleepSessions,
+    photos,
   };
 }
 
@@ -154,6 +220,13 @@ export async function getFeeding(request: Request, id: number) {
 export async function getSleep(request: Request, id: number) {
   await requireUserId(request);
   return db.sleep.findUnique({
+    where: { id }
+  });
+} 
+
+export async function getPhoto(request: Request, id: number) {
+  await requireUserId(request);
+  return db.photo.findUnique({
     where: { id }
   });
 } 

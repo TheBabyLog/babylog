@@ -1,0 +1,4 @@
+-- AlterTable
+ALTER TABLE "Photo" ADD COLUMN     "notes" TEXT,
+ALTER COLUMN "takenAt" DROP NOT NULL,
+ALTER COLUMN "takenOn" DROP NOT NULL;
