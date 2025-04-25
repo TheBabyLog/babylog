@@ -1,7 +1,7 @@
 import { Form, useNavigate } from "@remix-run/react";
 import { XIcon } from "lucide-react";
 import { useEffect, useState, useCallback } from "react";
-import { t } from "~/src/utils/translate";
+import { t } from "../../src/utils/translate";
 
 interface Field {
   id: string;

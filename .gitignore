@@ -14,6 +14,7 @@ node_modules
 .env
 .env.*
 !.env.example
+.dev.vars
 
 # Prisma
 /prisma/*.db
@@ -54,3 +55,7 @@ yarn-error.log*
 
 # Optional eslint cache
 .eslintcache
+
+# Cloudflare
+/.wrangler
+.wrangler

@@ -1,7 +1,8 @@
-import { db } from "./db";
 import { requireUserId } from "./session";
+import { PrismaClient } from "@prisma/client/edge";
 
 export async function addCaregiver(
+  prisma: PrismaClient,
   request: Request,
   babyId: number,
   userId: number,
@@ -9,7 +10,7 @@ export async function addCaregiver(
   permissions: string[] = ["view", "log"]
 ) {
   await requireUserId(request);
-  return db.babyCaregiver.create({
+  return prisma.babyCaregiver.create({
     data: {
       babyId,
       userId,
@@ -19,9 +20,14 @@ export async function addCaregiver(
   });
 }
 
-export async function removeCaregiver(request: Request, babyId: number, userId: number) {
+export async function removeCaregiver(
+  prisma: PrismaClient,
+  request: Request,
+  babyId: number,
+  userId: number
+) {
   await requireUserId(request);
-  return db.babyCaregiver.delete({
+  return prisma.babyCaregiver.delete({
     where: {
       babyId_userId: {
         babyId,
@@ -31,17 +37,28 @@ export async function removeCaregiver(request: Request, babyId: number, userId: 
   });
 }
 
-export async function addBabyOwner(request: Request, babyId: number, userId: number) {
+export async function addBabyOwner(
+  prisma: PrismaClient,
+  request: Request,
+  babyId: number,
+  userId: number
+) {
   await requireUserId(request);
-  return db.baby.update({
+  return prisma.baby.update({
     where: { id: babyId },
     data: { ownerId: userId },
   });
 }
 
-export async function inviteNewCaregiver(request: Request, babyId: number, email: string, senderId: number) {
+export async function inviteNewCaregiver(
+  prisma: PrismaClient,
+  request: Request,
+  babyId: number,
+  email: string,
+  senderId: number
+) {
   await requireUserId(request);
-  return db.parentInvite.create({
+  return prisma.parentInvite.create({
     data: {
       email,
       babyId,

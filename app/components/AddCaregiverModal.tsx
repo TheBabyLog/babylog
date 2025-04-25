@@ -22,7 +22,11 @@ export default function AddCaregiverModal({
   const [showConfirmation, setShowConfirmation] = useState(false);
   const submit = useSubmit();
   const navigation = useNavigation();
-  const actionData = useActionData();
+  interface ActionData {
+    error?: string;
+  }
+
+  const actionData = useActionData<ActionData>();
 
   // Close modal when form submission is successful
   useEffect(() => {
