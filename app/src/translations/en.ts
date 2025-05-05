@@ -1,4 +1,3 @@
-
 export const en = {
   common: {
     welcome: 'Welcome',
@@ -87,10 +86,13 @@ export const en = {
       }
     },
     photo: {
-      title: 'Photo',
-      upload: 'Upload File',
+      uploaded: 'Uploaded',
       caption: 'Caption',
       captionPlaceholder: 'Add a caption...',
+      sort: {
+        newest: 'Newest',
+        oldest: 'Oldest'
+      }
     }
   },
   baby: {
@@ -173,6 +175,13 @@ export const en = {
   },
   settings: {
     language: "Language"
+  },
+  photoModal: {
+    uploaded: 'Uploaded:',
+    caption: 'Caption:',
+    edit: 'Edit',
+    delete: 'Delete',
+    deleteConfirmation: 'Are you sure you want to delete this photo?',
   },
   // Add more translation categories as needed
 };
