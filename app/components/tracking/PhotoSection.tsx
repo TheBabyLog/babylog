@@ -69,7 +69,7 @@ export function PhotoSection({
   };
 
   const handleDeletePhoto = async (photoId: number) => {
-    if (window.confirm(t("baby.photos.deleteConfirmation"))) {
+    if (window.confirm(t("photoModal.deleteConfirmation"))) {
       fetcher.submit(
         { photoId: photoId.toString() },
         { method: "DELETE", action: `/baby/${babyId}/photos/${photoId}` }
@@ -80,7 +80,13 @@ export function PhotoSection({
 
   // Close modal and refresh data when delete action is complete
   useEffect(() => {
-    if (fetcher.state === "idle" && fetcher.data?.success) {
+    const isSuccess =
+      fetcher.state === "idle" &&
+      fetcher.data &&
+      typeof fetcher.data === "object" &&
+      "success" in fetcher.data &&
+      (fetcher.data as any).success;
+    if (isSuccess) {
       handleCloseModal();
     }
   }, [fetcher.state, fetcher.data]);
@@ -137,7 +143,9 @@ export function PhotoSection({
                 >
                   <ArrowUpDown className="w-4 h-4" />
                   <span>
-                    {currentSort.sortBy === "newest" ? "Newest" : "Oldest"}
+                    {currentSort.sortBy === "newest"
+                      ? t("tracking.photo.sort.newest")
+                      : t("tracking.photo.sort.oldest")}
                   </span>
                 </button>
               </div>

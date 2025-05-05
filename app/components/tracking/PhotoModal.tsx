@@ -1,5 +1,6 @@
 import { Link } from "@remix-run/react";
 import { Edit, Trash2 } from "lucide-react";
+import { t } from "~/src/utils/translate";
 
 interface DashboardPhotos {
   id: number;
@@ -43,7 +44,6 @@ export function PhotoModal({
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-lg max-w-2xl w-full p-6">
         <div className="flex justify-between items-start mb-4">
-          <h3 className="text-lg font-semibold">Photo Details</h3>
           <button
             onClick={onClose}
             className="text-gray-500 hover:text-gray-700"
@@ -62,12 +62,15 @@ export function PhotoModal({
 
         <div className="mb-4">
           <p className="text-sm text-gray-600">
-            <span className="font-medium">Uploaded:</span>{" "}
+            <span className="font-medium">{t("tracking.photo.uploaded")}:</span>{" "}
             {formatDate(photo.timestamp)}
           </p>
           {photo.caption && (
             <p className="text-sm text-gray-600 mt-1">
-              <span className="font-medium">Caption:</span> {photo.caption}
+              <span className="font-medium">
+                {t("tracking.photo.caption")}:
+              </span>{" "}
+              {photo.caption}
             </p>
           )}
         </div>
@@ -78,14 +81,14 @@ export function PhotoModal({
             className="flex items-center gap-1 px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
           >
             <Edit className="w-4 h-4" />
-            <span>Edit</span>
+            <span>{t("photoModal.edit")}</span>
           </Link>
           <button
             onClick={handleDelete}
             className="flex items-center gap-1 px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600"
           >
             <Trash2 className="w-4 h-4" />
-            <span>Delete</span>
+            <span>{t("photoModal.delete")}</span>
           </button>
         </div>
       </div>
