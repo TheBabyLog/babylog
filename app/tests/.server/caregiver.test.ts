@@ -1,48 +1,123 @@
-import { describe, expect, it, vi } from 'vitest';
-import { db } from '~/.server/db';
-import { addCaregiver, removeCaregiver } from '~/.server/caregiver';
+import { describe, expect, it, vi, beforeEach } from "vitest";
+import { addCaregiver, removeCaregiver } from "~/.server/caregiver";
+import { requireUserId } from "~/.server/session";
+import type { PrismaClient } from "@prisma/client";
 
-vi.mock('~/.server/db', () => ({
-  db: {
-    babyCaregiver: {
-      create: vi.fn(),
-      delete: vi.fn()
-    }
-  }
+// Mock the session module
+vi.mock("~/.server/session", () => ({
+  requireUserId: vi.fn(),
 }));
 
-describe('caregiver service', () => {
-  it('adds caregiver correctly', async () => {
+// Create properly typed mock functions
+type MockFunction = ReturnType<typeof vi.fn>;
+
+// Create a type for our mock Prisma client with proper function typing
+type MockPrismaClient = {
+  babyCaregiver: {
+    create: MockFunction;
+    delete: MockFunction;
+  };
+};
+
+// Create the mock Prisma client
+const mockPrisma: MockPrismaClient = {
+  babyCaregiver: {
+    create: vi.fn(),
+    delete: vi.fn(),
+  },
+};
+
+// Create a mock request
+const mockRequest = {} as Request;
+
+describe("caregiver service", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("adds caregiver correctly", async () => {
     const mockCaregiver = {
       id: 1,
       babyId: 1,
       userId: 2,
-      relationship: 'grandmother',
-      permissions: ['view', 'log'],
+      relationship: "grandmother",
+      permissions: ["view", "log"],
       createdAt: new Date(),
-      updatedAt: new Date()
+      updatedAt: new Date(),
     };
 
-    vi.mocked(db.babyCaregiver.create).mockResolvedValueOnce(mockCaregiver);
-    
-    const result = await addCaregiver(1, 2, 'grandmother');
+    // Mock the requireUserId function to resolve
+    vi.mocked(requireUserId).mockResolvedValueOnce(100);
+
+    // Mock the create function
+    mockPrisma.babyCaregiver.create.mockResolvedValueOnce(mockCaregiver);
+
+    // Call the function with all required parameters
+    const result = await addCaregiver(
+      mockPrisma as unknown as PrismaClient,
+      mockRequest,
+      1,
+      2,
+      "grandmother",
+      ["view", "log"]
+    );
+
+    // Verify the result
     expect(result).toEqual(mockCaregiver);
+
+    // Verify requireUserId was called with the request
+    expect(requireUserId).toHaveBeenCalledWith(mockRequest);
+
+    // Verify create was called with the right data
+    expect(mockPrisma.babyCaregiver.create).toHaveBeenCalledWith({
+      data: {
+        babyId: 1,
+        userId: 2,
+        relationship: "grandmother",
+        permissions: ["view", "log"],
+      },
+    });
   });
 
-  it('removes caregiver correctly', async () => {
+  it("removes caregiver correctly", async () => {
     const mockCaregiver = {
       id: 1,
       babyId: 1,
       userId: 2,
-      relationship: 'grandmother',
-      permissions: ['view', 'log'],
+      relationship: "grandmother",
+      permissions: ["view", "log"],
       createdAt: new Date(),
-      updatedAt: new Date()
+      updatedAt: new Date(),
     };
 
-    vi.mocked(db.babyCaregiver.delete).mockResolvedValueOnce(mockCaregiver);
-    
-    const result = await removeCaregiver(1, 2);
+    // Mock requireUserId
+    vi.mocked(requireUserId).mockResolvedValueOnce(100);
+
+    // Mock delete
+    mockPrisma.babyCaregiver.delete.mockResolvedValueOnce(mockCaregiver);
+
+    // Call the function
+    const result = await removeCaregiver(
+      mockPrisma as unknown as PrismaClient,
+      mockRequest,
+      1,
+      2
+    );
+
+    // Verify the result
     expect(result).toEqual(mockCaregiver);
+
+    // Verify requireUserId was called
+    expect(requireUserId).toHaveBeenCalledWith(mockRequest);
+
+    // Verify delete was called correctly
+    expect(mockPrisma.babyCaregiver.delete).toHaveBeenCalledWith({
+      where: {
+        babyId_userId: {
+          babyId: 1,
+          userId: 2,
+        },
+      },
+    });
   });
-}); 
+});

@@ -25,6 +25,9 @@ export async function verifyLogin(
       id: true,
       email: true,
       passwordHash: true,
+      firstName: true,
+      lastName: true,
+      phone: true,
       // Add other fields you need, but exclude sensitive data
     },
   });

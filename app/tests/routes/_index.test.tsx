@@ -1,11 +1,17 @@
-import { vi } from "vitest";
-import { useActionData } from "@remix-run/react";
+import { vi, describe, it, expect, beforeEach } from "vitest";
+import { render, screen, fireEvent } from "@testing-library/react";
+import { redirect } from "@remix-run/node";
 
-// Mock setup must come before other imports
+// Define mocks within the factory functions
 vi.mock("@remix-run/react", () => ({
-  useActionData: vi.fn(),
-  Form: ({ children, ...props }: { children: React.ReactNode; [key: string]: unknown }) => 
-    <form {...props}>{children}</form>,
+  useActionData: vi.fn(() => undefined),
+  Form: ({
+    children,
+    ...props
+  }: {
+    children: React.ReactNode;
+    [key: string]: unknown;
+  }) => <form {...props}>{children}</form>,
   useNavigate: () => vi.fn(),
   useSubmit: () => vi.fn(),
   useLoaderData: vi.fn(),
@@ -37,42 +43,70 @@ vi.mock("~/.server/session", () => ({
   getUserId: vi.fn(),
 }));
 
-vi.mock("~/.server/user", () => ({
+vi.mock("~/.server/auth", () => ({
   verifyLogin: vi.fn(),
 }));
 
-// Add mock for translation utility
-vi.mock('~/src/utils/translate', () => ({
+vi.mock("~/src/utils/translate", () => ({
   t: (key: string) => {
     const translations: Record<string, string> = {
-      'auth.errors.invalidCredentials': 'Invalid credentials',
-      'auth.errors.credentialsRequired': 'Email and password are required'
+      "auth.errors.invalidCredentials": "Invalid credentials",
+      "auth.errors.credentialsRequired": "Email and password are required",
     };
     return translations[key] || key;
-  }
+  },
 }));
 
-// Now we can do our imports
-import { render, screen, fireEvent } from "@testing-library/react";
-import { redirect } from "@remix-run/node";
+// Now import the mocked modules after all vi.mock calls
+import { useActionData } from "@remix-run/react";
+import { createUserSession, getUserId } from "~/.server/session";
+import { verifyLogin } from "~/.server/auth";
 import Login, { loader, action } from "~/routes/_index";
 
+// Create a mock prisma client
+const mockPrisma = {
+  user: {
+    findUnique: vi.fn(),
+  },
+};
+
+// Create a mock context object
+const mockContext = {
+  prisma: mockPrisma,
+  cloudflare: { env: {} },
+};
+
 describe("Login Page", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    (useActionData as any).mockImplementation(() => undefined);
+  });
+
   describe("loader", () => {
     it("redirects to dashboard if user is already logged in", async () => {
-      const { getUserId } = await import("~/.server/session");
-      vi.mocked(getUserId).mockResolvedValueOnce(1);
+      (getUserId as any).mockResolvedValue(1);
+
       const request = new Request("http://localhost:3000/");
-      const response = await loader({ request, context: {}, params: {} });
+
+      const response = await (loader as any)({
+        request,
+        context: mockContext,
+        params: {},
+      });
 
       expect(response).toEqual(redirect("/dashboard"));
     });
 
     it("returns null if user is not logged in", async () => {
-      const { getUserId } = await import("~/.server/session");
-      vi.mocked(getUserId).mockResolvedValueOnce(null);
+      (getUserId as any).mockResolvedValue(null);
+
       const request = new Request("http://localhost:3000/");
-      const response = await loader({ request, context: {}, params: {} });
+
+      const response = await (loader as any)({
+        request,
+        context: mockContext,
+        params: {},
+      });
 
       expect(response).toBeNull();
     });
@@ -80,8 +114,7 @@ describe("Login Page", () => {
 
   describe("action", () => {
     it("returns error for invalid credentials", async () => {
-      const { verifyLogin } = await import("~/.server/user");
-      vi.mocked(verifyLogin).mockResolvedValueOnce(null);
+      (verifyLogin as any).mockResolvedValue(null);
 
       const formData = new FormData();
       formData.append("email", "test@example.com");
@@ -92,27 +125,28 @@ describe("Login Page", () => {
         body: formData,
       });
 
-      const response = await action({ request, context: {}, params: {} });
+      const response = await (action as any)({
+        request,
+        context: mockContext,
+        params: {},
+      });
+
       const responseData = await response.json();
-      
-      expect(responseData).toEqual({ error: 'Invalid credentials' });
+
+      expect(responseData).toEqual({ error: "Invalid credentials" });
       expect(response.status).toBe(400);
     });
 
     it("creates user session on successful login", async () => {
-      const { verifyLogin } = await import("~/.server/user");
-      const { createUserSession } = await import("~/.server/session");
-
-      vi.mocked(verifyLogin).mockResolvedValueOnce({
+      (verifyLogin as any).mockResolvedValue({
         id: 1,
         email: "test@example.com",
         firstName: "Test",
         lastName: "User",
         phone: null,
       });
-      vi.mocked(createUserSession).mockResolvedValueOnce(
-        redirect("/dashboard")
-      );
+
+      (createUserSession as any).mockResolvedValue(redirect("/dashboard"));
 
       const formData = new FormData();
       formData.append("email", "test@example.com");
@@ -123,7 +157,11 @@ describe("Login Page", () => {
         body: formData,
       });
 
-      await action({ request, context: {}, params: {} });
+      await (action as any)({
+        request,
+        context: mockContext,
+        params: {},
+      });
 
       expect(createUserSession).toHaveBeenCalledWith(1, "/dashboard");
     });
@@ -141,9 +179,9 @@ describe("Login Page", () => {
     });
 
     it("displays error message when provided", () => {
-      (useActionData as jest.Mock).mockReturnValue({
+      (useActionData as any).mockImplementation(() => ({
         error: "Test error message",
-      });
+      }));
 
       render(<Login />);
       expect(screen.getByText("Test error message")).toBeInTheDocument();

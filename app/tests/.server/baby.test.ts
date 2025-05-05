@@ -1,77 +1,85 @@
-import { describe, expect, it, vi } from 'vitest';
-import { db } from '~/.server/db';
-import { createBaby, getBaby, getUserBabies } from '~/.server/baby';
+import { describe, expect, it, vi } from "vitest";
+import { a } from "vitest/dist/chunks/suite.d.FvehnV49.js";
+import { createBaby, getBaby, getUserBabies } from "~/.server/baby";
 
-vi.mock('~/.server/db', () => ({
-  db: {
-    baby: {
-      create: vi.fn(),
-      findUnique: vi.fn(),
-      findMany: vi.fn()
-    }
-  }
-}));
+// Create a mock PrismaClient
+const mockPrisma = {
+  baby: {
+    create: vi.fn(),
+    findUnique: vi.fn(),
+    findMany: vi.fn(),
+  },
+  album: {
+    create: vi.fn(),
+  },
+};
 
-describe('baby service', () => {
-  it('creates baby correctly', async () => {
+describe("baby service", () => {
+  it("creates baby correctly", async () => {
     const mockBaby = {
       id: 1,
-      firstName: 'John',
-      lastName: 'Doe',
-      dateOfBirth: new Date('2024-01-01'),
-      gender: 'male',
+      firstName: "John",
+      lastName: "Doe",
+      dateOfBirth: new Date("2024-01-01"),
+      gender: "male",
       ownerId: 1,
       createdAt: new Date(),
-      updatedAt: new Date()
+      updatedAt: new Date(),
     };
 
-    vi.mocked(db.baby.create).mockResolvedValueOnce(mockBaby);
-    
-    const result = await createBaby(1, {
-      firstName: 'John',
-      lastName: 'Doe',
-      dateOfBirth: new Date('2024-01-01'),
-      gender: 'male'
+    // Set up the mock return value
+    mockPrisma.baby.create.mockResolvedValueOnce(mockBaby);
+
+    // Pass the mock prisma client as the first argument
+    const result = await createBaby(mockPrisma as any, 1, {
+      firstName: "John",
+      lastName: "Doe",
+      dateOfBirth: new Date("2024-01-01"),
+      gender: "male",
     });
 
     expect(result).toEqual(mockBaby);
   });
 
-  it('gets baby by id with relations', async () => {
+  it("gets baby by id with relations", async () => {
     const mockBaby = {
       id: 1,
-      firstName: 'John',
-      lastName: 'Doe',
-      dateOfBirth: new Date('2024-01-01'),
-      gender: 'male',
+      firstName: "John",
+      lastName: "Doe",
+      dateOfBirth: new Date("2024-01-01"),
+      gender: "male",
       ownerId: 1,
-      owner: { id: 1, email: 'test@example.com' },
+      owner: { id: 1, email: "test@example.com" },
       caregivers: [],
       createdAt: new Date(),
-      updatedAt: new Date()
+      updatedAt: new Date(),
     };
 
-    vi.mocked(db.baby.findUnique).mockResolvedValueOnce(mockBaby);
-    
-    const result = await getBaby(1);
+    mockPrisma.baby.findUnique.mockResolvedValueOnce(mockBaby);
+
+    // Pass the mock prisma client as the first argument
+    const result = await getBaby(mockPrisma as any, 1);
     expect(result).toEqual(mockBaby);
   });
 
-  it('gets user babies', async () => {
-    const mockBabies = [{
-      id: 1,
-      firstName: 'John',
-      lastName: 'Doe',
-      dateOfBirth: new Date('2024-01-01'),
-      gender: 'male',
-      ownerId: 1,
-      createdAt: new Date(),
-      updatedAt: new Date()
-    }];
+  it("gets user babies", async () => {
+    const mockBabies = [
+      {
+        id: 1,
+        firstName: "John",
+        lastName: "Doe",
+        dateOfBirth: new Date("2024-01-01"),
+        gender: "male",
+        ownerId: 1,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+    ];
 
-    vi.mocked(db.baby.findMany).mockResolvedValueOnce(mockBabies);
-    
-    const result = await getUserBabies(1);
+    mockPrisma.baby.findMany.mockResolvedValueOnce(mockBabies);
+
+    // Pass the mock prisma client as the first argument
+    const result = await getUserBabies(mockPrisma as any, 1);
     expect(result).toEqual(mockBabies);
   });
-}); 
+});
