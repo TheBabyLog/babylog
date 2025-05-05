@@ -9,6 +9,7 @@ import AddCaregiverModal from "~/components/AddCaregiverModal";
 import { t } from "~/src/utils/translate";
 import { LanguageSelector } from "~/components/LanguageSelector";
 import { TrackingSection } from "~/components/tracking/TrackingSection";
+import { PhotoSection } from "~/components/tracking/PhotoSection";
 
 interface Caregiver {
   userId: number;
@@ -141,22 +142,20 @@ export default function BabyDetails() {
                 )
               }
             />
-            {/* Insert photo TrackingSection  */}
-            <TrackingSection
-              title={t("baby.recent.photos")}
-              events={photos.map((photo) => ({
+            <PhotoSection
+              photos={photos.map((photo) => ({
                 ...photo,
-                type: "photo" as const,
+                babyId: baby.id,
+                caption: photo.caption ?? undefined,
+                timestamp:
+                  photo.timestamp instanceof Date
+                    ? photo.timestamp
+                    : new Date(photo.timestamp),
               }))}
               babyId={baby.id}
-              trackingType="photo"
-              renderEventDetails={(event) =>
-                event.caption && (
-                  <div className="text-sm text-gray-600">
-                    {t("baby.details.caption")}: {event.caption}
-                  </div>
-                )
-              }
+              sortBy="newest"
+              limit={5}
+              showCaption={true}
             />
           </div>
         </div>

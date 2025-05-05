@@ -1,5 +1,6 @@
 import { db } from "./db";
 import { requireUserId } from "./session";
+import { createDownloadUrl, deleteFromS3 } from "./s3_auth";
 
 interface EliminationData {
   babyId: number;
@@ -156,14 +157,35 @@ export async function editPhoto(request: Request, id: number, data: PhotoUpdateD
 
 export async function deletePhoto(request: Request, id: number) {
   await requireUserId(request);
-  return db.photo.delete({
+  
+  // First get the photo to get the S3 key
+  const photo = await db.photo.findUnique({
     where: { id }
   });
+
+  if (!photo) {
+    throw new Error("Photo not found");
+  }
+
+  try {
+    // Delete from S3 first
+    await deleteFromS3(photo.url);
+
+    // Then delete from database
+    await db.photo.delete({
+      where: { id }
+    });
+
+    return { success: true };
+  } catch (error) {
+    console.error("Error deleting photo:", error);
+    throw error;
+  }
 }
 
 export async function getRecentTrackingEvents(request: Request, babyId: number, limit: number = 5) {
   const userId = await requireUserId(request);
-  const [eliminations, feedings, sleepSessions, photos] = await Promise.all([
+  const [eliminations, feedings, sleepSessions, rawPhotos] = await Promise.all([
     db.elimination.findMany({
       where: { babyId },
       orderBy: { timestamp: 'desc' },
@@ -181,19 +203,36 @@ export async function getRecentTrackingEvents(request: Request, babyId: number, 
     }),
     db.photo.findMany({
       where: {
-        albumPhotos: {
+        babyPhotos: {
           some: {
-            album: {
-              babyId
-            }
+            babyId
           }
         }
       },
-      orderBy: {
-        createdAt: 'desc'
-      },
+      orderBy: { createdAt: 'desc' },
       take: limit,
-  })]);
+      include: {
+        babyPhotos: true
+      }
+    })
+  ]);
+
+  // Generate signed URLs for photos
+  const photos = await Promise.all(
+    rawPhotos.map(async (photo) => {
+      try {
+        const signedUrl = await createDownloadUrl(photo.url);
+        return {
+          ...photo,
+          url: signedUrl,
+          timestamp: photo.timestamp || photo.createdAt,
+        };
+      } catch (error) {
+        console.error("Error generating signed URL for photo:", error);
+        return null;
+      }
+    })
+  ).then(photos => photos.filter(Boolean)); // Remove any nulls from failed URL generation
 
   return {
     eliminations,
