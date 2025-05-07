@@ -22,7 +22,7 @@ import {
   type PhotoUpdateData,
 } from "~/.server/tracking";
 import { t } from "~/src/utils/translate";
-import type { Baby, BabyCaregiver } from "@prisma/client";
+import { Baby, BabyCaregiver } from "prisma/generated/client";
 
 type FieldType = "text" | "number" | "select" | "textarea" | "datetime-local";
 
@@ -161,9 +161,10 @@ type LoaderData = {
   };
 };
 
-export async function loader({ params, request }: LoaderFunctionArgs) {
+export async function loader({ params, request, context }: LoaderFunctionArgs) {
+  const { prisma } = context;
   const userId = await requireUserId(request);
-  const baby = await getBaby(Number(params.id));
+  const baby = await getBaby(prisma, Number(params.id));
 
   if (!baby) return redirect("/dashboard");
 
@@ -186,16 +187,16 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
   let event;
   switch (trackingType) {
     case "elimination":
-      event = await getElimination(request, eventId);
+      event = await getElimination(prisma, request, eventId);
       break;
     case "feeding":
-      event = await getFeeding(request, eventId);
+      event = await getFeeding(prisma, request, eventId);
       break;
     case "sleep":
-      event = await getSleep(request, eventId);
+      event = await getSleep(prisma, request, eventId);
       break;
     case "photo":
-      event = await getPhoto(request, eventId);
+      event = await getPhoto(prisma, request, eventId);
       break;
   }
 
@@ -208,9 +209,10 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
   });
 }
 
-export async function action({ request, params }: ActionFunctionArgs) {
+export async function action({ request, params, context }: ActionFunctionArgs) {
+  const { prisma } = context;
   const userId = await requireUserId(request);
-  const baby = await getBaby(Number(params.id));
+  const baby = await getBaby(prisma, Number(params.id));
 
   if (!baby) return redirect("/dashboard");
 
@@ -240,7 +242,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
         location: rawData.location?.toString() ?? null,
         notes: rawData.notes?.toString() ?? null,
       };
-      await editElimination(request, eventId, data);
+      await editElimination(prisma, request, eventId, data);
       break;
     }
     case "feeding": {
@@ -255,7 +257,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
         food: rawData.food?.toString() ?? null,
         notes: rawData.notes?.toString() ?? null,
       };
-      await editFeeding(request, eventId, data);
+      await editFeeding(prisma, request, eventId, data);
       break;
     }
     case "sleep": {
@@ -271,7 +273,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
         quality: rawData.quality ? Number(rawData.quality) : null,
         notes: rawData.notes?.toString() ?? null,
       };
-      await editSleep(request, eventId, data);
+      await editSleep(prisma, request, eventId, data);
       break;
     }
     case "photo": {
@@ -285,7 +287,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
           ? new Date(rawData.takenAt.toString())
           : undefined,
       };
-      await editPhoto(request, eventId, data);
+      await editPhoto(prisma, request, eventId, data);
       break;
     }
   }

@@ -1,13 +1,14 @@
-import { Link, useLoaderData, Form } from '@remix-run/react';
+import { Link, useLoaderData, Form } from "@remix-run/react";
 import { requireUserId, logout } from "~/.server/session";
 import { getUserBabies } from "~/.server/baby";
 import type { LoaderFunctionArgs, ActionFunctionArgs } from "@remix-run/node";
-import type { Baby } from "@prisma/client";
-import { t } from '~/src/utils/translate';
+import { t } from "~/src/utils/translate";
+import { Baby } from "prisma/generated/client";
 
-export async function loader({ request }: LoaderFunctionArgs) {
+export async function loader({ request, context }: LoaderFunctionArgs) {
+  const { prisma } = context;
   const userId = await requireUserId(request);
-  const babies = await getUserBabies(userId);
+  const babies = await getUserBabies(prisma, userId);
   return { babies };
 }
 
@@ -23,28 +24,28 @@ export default function Dashboard() {
   return (
     <div className="max-w-4xl mx-auto p-6">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">{t('dashboard.title')}</h1>
+        <h1 className="text-2xl font-bold">{t("dashboard.title")}</h1>
         <div className="flex gap-3">
           {" "}
           <Link
             to="/baby/new"
             className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
           >
-            {t('dashboard.addBaby')}
+            {t("dashboard.addBaby")}
           </Link>
           <Form method="post">
             <button
               type="submit"
               className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
             >
-              {t('common.logout')}
+              {t("common.logout")}
             </button>
           </Form>
         </div>
       </div>
 
       {babies.length === 0 ? (
-        <p className="text-gray-600">{t('dashboard.noBabies')}</p>
+        <p className="text-gray-600">{t("dashboard.noBabies")}</p>
       ) : (
         <div className="grid md:grid-cols-2 gap-4">
           {babies.map((baby: Baby) => (
@@ -57,7 +58,8 @@ export default function Dashboard() {
                 {baby.firstName} {baby.lastName}
               </h2>
               <p className="text-gray-600">
-                {t('common.born')}: {new Date(baby.dateOfBirth).toISOString().split("T")[0]}
+                {t("common.born")}:{" "}
+                {new Date(baby.dateOfBirth).toISOString().split("T")[0]}
               </p>
             </Link>
           ))}

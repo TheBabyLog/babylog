@@ -1,4 +1,4 @@
-import { db } from "./db";
+import { PrismaClient } from "@prisma/client/edge";
 import { requireUserId } from "./session";
 
 interface EliminationData {
@@ -74,13 +74,17 @@ export interface PhotoUpdateData {
   id?: number;
   url?: string;
   caption?: string;
-  takenOn?: Date; 
-  takenAt?: Date; 
+  takenOn?: Date;
+  takenAt?: Date;
 }
 
-export async function trackElimination(request: Request, data: EliminationData) {
+export async function trackElimination(
+  prisma: PrismaClient,
+  request: Request,
+  data: EliminationData
+) {
   await requireUserId(request);
-  return db.elimination.create({
+  return prisma.elimination.create({
     data: {
       ...data,
       success: true, // Required by schema
@@ -88,25 +92,37 @@ export async function trackElimination(request: Request, data: EliminationData) 
   });
 }
 
-export async function trackFeeding(request: Request, data: FeedingData) {
+export async function trackFeeding(
+  prisma: PrismaClient,
+  request: Request,
+  data: FeedingData
+) {
   await requireUserId(request);
-  return db.feeding.create({
+  return prisma.feeding.create({
     data: data,
   });
 }
 
-export async function trackSleep(request: Request, data: SleepData) {
+export async function trackSleep(
+  prisma: PrismaClient,
+  request: Request,
+  data: SleepData
+) {
   await requireUserId(request);
-  return db.sleep.create({
+  return prisma.sleep.create({
     data: data,
   });
 }
 
-export async function trackPhoto(request: Request, data: PhotoData) {
+export async function trackPhoto(
+  prisma: PrismaClient,
+  request: Request,
+  data: PhotoData
+) {
   await requireUserId(request);
-  
+
   // First create the photo
-  const photo = await db.photo.create({
+  const photo = await prisma.photo.create({
     data: {
       url: data.url,
       caption: data.caption,
@@ -122,78 +138,108 @@ export async function trackPhoto(request: Request, data: PhotoData) {
   return photo;
 }
 
-export async function editElimination(request: Request, id: number, data: EliminationUpdateData) {
+export async function editElimination(
+  prisma: PrismaClient,
+  request: Request,
+  id: number,
+  data: EliminationUpdateData
+) {
   await requireUserId(request);
-  return db.elimination.update({
+  return prisma.elimination.update({
     where: { id },
-    data
+    data,
   });
 }
 
-export async function editFeeding(request: Request, id: number, data: FeedingUpdateData) {
+export async function editFeeding(
+  prisma: PrismaClient,
+  request: Request,
+  id: number,
+  data: FeedingUpdateData
+) {
   await requireUserId(request);
-  return db.feeding.update({
+  return prisma.feeding.update({
     where: { id },
-    data
+    data,
   });
 }
 
-export async function editSleep(request: Request, id: number, data: SleepUpdateData) {
+export async function editSleep(
+  prisma: PrismaClient,
+  request: Request,
+  id: number,
+  data: SleepUpdateData
+) {
   await requireUserId(request);
-  return db.sleep.update({
+  return prisma.sleep.update({
     where: { id },
-    data
+    data,
   });
 }
 
-export async function editPhoto(request: Request, id: number, data: PhotoUpdateData) {
+export async function editPhoto(
+  prisma: PrismaClient,
+  request: Request,
+  id: number,
+  data: PhotoUpdateData
+) {
   await requireUserId(request);
-  return db.photo.update({
+  return prisma.photo.update({
     where: { id },
-    data
+    data,
   });
 }
 
-export async function deletePhoto(request: Request, id: number) {
+export async function deletePhoto(
+  prisma: PrismaClient,
+  request: Request,
+  id: number
+) {
   await requireUserId(request);
-  return db.photo.delete({
-    where: { id }
+  return prisma.photo.delete({
+    where: { id },
   });
 }
 
-export async function getRecentTrackingEvents(request: Request, babyId: number, limit: number = 5) {
-  const userId = await requireUserId(request);
+export async function getRecentTrackingEvents(
+  prisma: PrismaClient,
+  request: Request,
+  babyId: number,
+  limit: number = 5
+) {
+  // const userId = await requireUserId(request);
   const [eliminations, feedings, sleepSessions, photos] = await Promise.all([
-    db.elimination.findMany({
+    prisma.elimination.findMany({
       where: { babyId },
-      orderBy: { timestamp: 'desc' },
+      orderBy: { timestamp: "desc" },
       take: limit,
     }),
-    db.feeding.findMany({
+    prisma.feeding.findMany({
       where: { babyId },
-      orderBy: { startTime: 'desc' },
+      orderBy: { startTime: "desc" },
       take: limit,
     }),
-    db.sleep.findMany({
+    prisma.sleep.findMany({
       where: { babyId },
-      orderBy: { startTime: 'desc' },
+      orderBy: { startTime: "desc" },
       take: limit,
     }),
-    db.photo.findMany({
+    prisma.photo.findMany({
       where: {
         albumPhotos: {
           some: {
             album: {
-              babyId
-            }
-          }
-        }
+              babyId,
+            },
+          },
+        },
       },
       orderBy: {
-        createdAt: 'desc'
+        createdAt: "desc",
       },
       take: limit,
-  })]);
+    }),
+  ]);
 
   return {
     eliminations,
@@ -203,30 +249,46 @@ export async function getRecentTrackingEvents(request: Request, babyId: number, 
   };
 }
 
-export async function getElimination(request: Request, id: number) {
+export async function getElimination(
+  prisma: PrismaClient,
+  request: Request,
+  id: number
+) {
   await requireUserId(request);
-  return db.elimination.findUnique({
-    where: { id }
+  return prisma.elimination.findUnique({
+    where: { id },
   });
 }
 
-export async function getFeeding(request: Request, id: number) {
+export async function getFeeding(
+  prisma: PrismaClient,
+  request: Request,
+  id: number
+) {
   await requireUserId(request);
-  return db.feeding.findUnique({
-    where: { id }
+  return prisma.feeding.findUnique({
+    where: { id },
   });
 }
 
-export async function getSleep(request: Request, id: number) {
+export async function getSleep(
+  prisma: PrismaClient,
+  request: Request,
+  id: number
+) {
   await requireUserId(request);
-  return db.sleep.findUnique({
-    where: { id }
+  return prisma.sleep.findUnique({
+    where: { id },
   });
-} 
+}
 
-export async function getPhoto(request: Request, id: number) {
+export async function getPhoto(
+  prisma: PrismaClient,
+  request: Request,
+  id: number
+) {
   await requireUserId(request);
-  return db.photo.findUnique({
-    where: { id }
+  return prisma.photo.findUnique({
+    where: { id },
   });
-} 
+}

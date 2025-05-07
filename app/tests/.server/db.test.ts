@@ -1,35 +1,75 @@
-import { vi, describe, it, expect, beforeEach } from 'vitest';
-import { PrismaClient } from '@prisma/client';
+// import { vi, describe, it, expect, beforeEach } from "vitest";
+// import type { LoaderFunctionArgs } from "@remix-run/cloudflare";
+// import * as dbUtils from "~/db.server";
 
-vi.mock('@prisma/client', () => {
-  const mockConnect = vi.fn();
-  const PrismaClient = vi.fn(() => ({
-    $connect: mockConnect,
-    $disconnect: vi.fn()
-  }));
-  return { PrismaClient };
+// // Create mock objects we'll use in tests
+// const mockPrismaClient = {
+//   $connect: vi.fn(),
+//   $disconnect: vi.fn(),
+//   user: { findMany: vi.fn() },
+//   $extends: vi.fn().mockReturnThis(),
+// };
+
+// // Mock the Accelerate extension
+// const mockWithAccelerate = vi.fn().mockReturnValue({});
+
+// // Mock modules before importing anything
+// vi.mock("@prisma/client/edge", () => ({
+//   PrismaClient: vi.fn(() => mockPrismaClient),
+// }));
+
+// vi.mock("@prisma/extension-accelerate", () => ({
+//   withAccelerate: mockWithAccelerate,
+// }));
+
+// describe("database utilities", () => {
+//   beforeEach(() => {
+//     vi.clearAllMocks();
+//   });
+
+//   it("getPrismaClient initializes client with correct URL", async () => {
+//     const testUrl = "test-database-url";
+//     const result = dbUtils.getPrismaClient(testUrl);
+
+//     // Verify PrismaClient was constructed with the right options
+//     expect(mockPrismaClient.$extends).toHaveBeenCalled();
+//     expect(mockWithAccelerate).toHaveBeenCalled();
+//     expect(result).toBe(mockPrismaClient);
+//   });
+// });
+
+import { vi, describe, it, expect } from "vitest";
+
+// First define the mocks
+vi.mock("@prisma/client/edge", () => ({
+  PrismaClient: vi.fn(() => ({
+    $connect: vi.fn(),
+    $disconnect: vi.fn(),
+    user: { findMany: vi.fn() },
+    $extends: vi.fn().mockReturnThis(),
+  })),
+}));
+
+vi.mock("@prisma/extension-accelerate", () => ({
+  withAccelerate: vi.fn(() => ({})),
+}));
+
+// Then import your modules after all mocks are defined
+import { getPrismaClient } from "~/db.server";
+import { PrismaClient } from "@prisma/client/edge";
+import { withAccelerate } from "@prisma/extension-accelerate";
+
+describe("getPrismaClient", () => {
+  it("initializes with the correct URL", () => {
+    const testUrl = "test-database-url";
+    getPrismaClient(testUrl);
+
+    // Check that PrismaClient was constructed with the right options
+    expect(PrismaClient).toHaveBeenCalledWith({
+      datasourceUrl: testUrl,
+    });
+
+    // Check that withAccelerate was called
+    expect(withAccelerate).toHaveBeenCalled();
+  });
 });
-
-describe('database setup', () => {
-  beforeEach(() => {
-    vi.resetModules();
-    vi.unstubAllGlobals();
-    vi.clearAllMocks();
-  });
-
-  it('creates new PrismaClient in production', async () => {
-    vi.stubEnv('NODE_ENV', 'production');
-    await import('~/.server/db');
-    expect(PrismaClient).toHaveBeenCalled();
-  });
-
-  it('reuses PrismaClient in development', async () => {
-    vi.stubEnv('NODE_ENV', 'development');
-    
-    const { db: firstDb } = await import('~/.server/db');
-    const { db: secondDb } = await import('~/.server/db');
-    
-    expect(PrismaClient).toHaveBeenCalledTimes(1);
-    expect(firstDb).toBe(secondDb);
-  });
-}); 

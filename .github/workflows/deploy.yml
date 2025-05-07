@@ -1,0 +1,82 @@
+name: Deploy to Cloudflare Workers
+
+on:
+  push:
+    branches:
+      - main # Only deploy on pushes to main
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    name: Test
+    steps:
+      # Check out the repository code
+      - uses: actions/checkout@v3
+
+      # Setup Node.js environment
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20
+
+      # Install all dependencies defined in package.json
+      - name: Install dependencies
+        run: npm ci
+
+      # Generate Prisma Client with the --no-engine flag
+      - name: Generate Prisma Client
+        run: npx prisma generate --no-engine
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
+      # Run tests (update this command to match your test script in package.json)
+      - name: Run tests
+        run: npm test
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          # Add any other environment variables needed for tests
+
+  deploy:
+    needs: test # This ensures deploy only runs if test job passes
+    runs-on: ubuntu-latest
+    name: Deploy
+    steps:
+      # Check out the repository code
+      - uses: actions/checkout@v3
+
+      # Setup Node.js environment for the build
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20 # Matches the engine requirement in package.json
+
+      # Install all dependencies defined in package.json
+      - name: Install dependencies
+        run: npm ci
+
+      # Generate Prisma Client with the --no-engine flag (for Cloudflare Workers compatibility)
+      - name: Generate Prisma Client
+        run: npx prisma generate --no-engine
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
+      # Run the build script defined in package.json (remix vite:build)
+      - name: Build
+        run: npm run build
+        env:
+          # All environment variables needed for the build process
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
+      # Deploy to Cloudflare using wrangler
+      - name: Deploy to Cloudflare
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CF_API_TOKEN }} # Authentication token for Cloudflare API
+          accountId: ${{ secrets.CF_ACCOUNT_ID }} # Your Cloudflare account identifier
+          command: deploy # Runs 'wrangler deploy' command
+          wranglerVersion: "3.x" # Ensures compatibility with your project's wrangler version
+        env:
+          # Environment variables needed during deployment
+          # These will be available to your application at runtime
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          # Add any other environment variables you use in your application

@@ -1,11 +1,12 @@
 import { redirect, type ActionFunctionArgs } from "@remix-run/node";
 import { Form, useActionData } from "@remix-run/react";
 import { handleBabyCreation } from "~/.server/baby";
-import { t } from '~/src/utils/translate';
+import { t } from "~/src/utils/translate";
 import { useState } from "react";
 
-export async function action({ request }: ActionFunctionArgs) {
-  const result = await handleBabyCreation(request);
+export async function action({ request, context }: ActionFunctionArgs) {
+  const { prisma } = context;
+  const result = await handleBabyCreation(request, prisma);
 
   if ("error" in result) {
     return result;
@@ -20,8 +21,8 @@ export default function NewBaby() {
 
   return (
     <div className="max-w-md mx-auto p-8">
-      <h1 className="text-2xl font-bold mb-8">{t('newBaby.title')}</h1>
-      
+      <h1 className="text-2xl font-bold mb-8">{t("newBaby.title")}</h1>
+
       <Form method="post" className="space-y-6">
         {actionData?.error && (
           <div className="text-red-500 p-3 bg-red-50 rounded-md">
@@ -31,7 +32,7 @@ export default function NewBaby() {
 
         <div className="space-y-2">
           <label className="block text-sm font-medium">
-            {t('newBaby.fields.firstName')}
+            {t("newBaby.fields.firstName")}
             <input
               type="text"
               name="firstName"
@@ -43,7 +44,7 @@ export default function NewBaby() {
 
         <div className="space-y-2">
           <label className="block text-sm font-medium">
-            {t('newBaby.fields.lastName')}
+            {t("newBaby.fields.lastName")}
             <input
               type="text"
               name="lastName"
@@ -55,7 +56,7 @@ export default function NewBaby() {
 
         <div className="space-y-2">
           <label className="block text-sm font-medium">
-            {t('newBaby.fields.dateOfBirth')}
+            {t("newBaby.fields.dateOfBirth")}
             <input
               type="date"
               name="dateOfBirth"
@@ -67,13 +68,13 @@ export default function NewBaby() {
 
         <div className="space-y-2">
           <label className="block text-sm font-medium">
-            {t('newBaby.fields.gender')}
-            <select 
+            {t("newBaby.fields.gender")}
+            <select
               name="gender"
               className="mt-2 block w-full rounded-md border-gray-300 shadow-sm p-2"
             >
-              <option value="girl">{t('newBaby.genderOptions.girl')}</option>
-              <option value="boy">{t('newBaby.genderOptions.boy')}</option>
+              <option value="girl">{t("newBaby.genderOptions.girl")}</option>
+              <option value="boy">{t("newBaby.genderOptions.boy")}</option>
             </select>
           </label>
         </div>
