@@ -89,11 +89,14 @@ export const es: TranslationKeys = {
       },
     },
     photo: {
-      title: "Foto",
-      upload: "Subir archivo",
-      caption: "Título",
-      captionPlaceholder: "Agregar un título...",
-    },
+      uploaded: 'Subido el',
+      caption: 'Título',
+      captionPlaceholder: 'Agregar un título...',
+      sort: {
+        newest: 'Más Reciente',
+        oldest: 'Más Antiguo'
+      }
+    }
   },
   baby: {
     settings: "Configuración",
@@ -175,6 +178,13 @@ export const es: TranslationKeys = {
   },
   settings: {
     language: "Idioma",
+  },
+  photoModal: {
+    uploaded: 'Subido:',
+    caption: 'Título:',
+    edit: 'Editar',
+    delete: 'Eliminar',
+    deleteConfirmation: '¿Estás seguro de querer eliminar esta foto?',
   },
   // Add more translation categories as needed
 };

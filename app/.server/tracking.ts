@@ -1,5 +1,6 @@
 import { PrismaClient } from "@prisma/client/edge";
 import { requireUserId } from "./session";
+import { createDownloadUrl, deleteFromS3 } from "./s3_auth";
 
 interface EliminationData {
   babyId: number;
@@ -196,9 +197,29 @@ export async function deletePhoto(
   id: number
 ) {
   await requireUserId(request);
-  return prisma.photo.delete({
-    where: { id },
+  // First get the photo to get the S3 key
+  const photo = await prisma.photo.findUnique({
+    where: { id }
   });
+
+  if (!photo) {
+    throw new Error("Photo not found");
+  }
+
+  try {
+    // Delete from S3 first
+    await deleteFromS3(photo.url);
+
+    // Then delete from database
+    await prisma.photo.delete({
+      where: { id }
+    });
+
+    return { success: true };
+  } catch (error) {
+    console.error("Error deleting photo:", error);
+    throw error;
+  }
 }
 
 export async function getRecentTrackingEvents(
@@ -226,26 +247,42 @@ export async function getRecentTrackingEvents(
     }),
     prisma.photo.findMany({
       where: {
-        albumPhotos: {
+        babyPhotos: {
           some: {
-            album: {
-              babyId,
-            },
-          },
-        },
+            babyId
+          }
+        }
       },
-      orderBy: {
-        createdAt: "desc",
-      },
+      orderBy: { createdAt: 'desc' },
       take: limit,
-    }),
+      include: {
+        babyPhotos: true
+      }
+    })
   ]);
+
+  // Generate signed URLs for photos
+  const signedPhotos = await Promise.all(
+    photos.map(async (photo) => {
+      try {
+        const signedUrl = await createDownloadUrl(photo.url);
+        return {
+          ...photo,
+          url: signedUrl,
+          timestamp: photo.timestamp || photo.createdAt,
+        };
+      } catch (error) {
+        console.error("Error generating signed URL for photo:", error);
+        return null;
+      }
+    })
+  ).then(photos => photos.filter(Boolean)); // Remove any nulls from failed URL generation
 
   return {
     eliminations,
     feedings,
     sleepSessions,
-    photos,
+    photos: signedPhotos,
   };
 }
 

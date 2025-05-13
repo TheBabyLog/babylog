@@ -9,6 +9,7 @@ import AddCaregiverModal from "~/components/AddCaregiverModal";
 import { t } from "~/src/utils/translate";
 import { LanguageSelector } from "~/components/LanguageSelector";
 import { TrackingSection } from "~/components/tracking/TrackingSection";
+import { PhotoSection } from "~/components/tracking/PhotoSection";
 
 interface Caregiver {
   userId: number;
@@ -75,23 +76,25 @@ export default function BabyDetails() {
     <>
       <div>
         <div className="max-w-6xl mx-auto p-6">
-          <div className="flex justify-between items-center mb-6">
-            <h1 className="text-2xl font-bold">
-              {baby.firstName} {baby.lastName}
-            </h1>
-            <div className="flex items-centered gap-3">
-              <span className="text-lg font-normal text-gray-600">
-                {t("baby.caregivers")}: {caregivers}
-              </span>
-              <button
-                onClick={() => setShowCaregiverModal(true)}
-                className="p-1 rounded-full hover:bg-gray-100"
-                aria-label="Add caregiver"
-              >
-                <PlusIcon className="w-5 h-5" />
-              </button>
+          <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-6">
+            <div className="flex flex-col">
+              <h1 className="text-2xl font-bold">
+                {baby.firstName} {baby.lastName}
+              </h1>
+              <div className="flex items-center gap-2 mt-2">
+                <span className="text-lg font-normal text-gray-600">
+                  {t("baby.caregivers")}: {caregivers}
+                </span>
+                <button
+                  onClick={() => setShowCaregiverModal(true)}
+                  className="p-1 rounded-full hover:bg-gray-100"
+                  aria-label="Add caregiver"
+                >
+                  <PlusIcon className="w-5 h-5" />
+                </button>
+              </div>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 mt-4 md:mt-0 md:self-start md:justify-end w-full md:w-auto">
               <span className="text-sm text-gray-300">
                 {t("settings.language")}:
               </span>
@@ -142,22 +145,20 @@ export default function BabyDetails() {
                 )
               }
             />
-            {/* Insert photo TrackingSection  */}
-            <TrackingSection
-              title={t("baby.recent.photos")}
-              events={photos.map((photo) => ({
+            <PhotoSection
+              photos={photos.map((photo) => ({
                 ...photo,
-                type: "photo" as const,
+                babyId: baby.id,
+                caption: photo.caption ?? undefined,
+                timestamp:
+                  photo.timestamp instanceof Date
+                    ? photo.timestamp
+                    : new Date(photo.timestamp),
               }))}
               babyId={baby.id}
-              trackingType="photo"
-              renderEventDetails={(event) =>
-                event.caption && (
-                  <div className="text-sm text-gray-600">
-                    {t("baby.details.caption")}: {event.caption}
-                  </div>
-                )
-              }
+              sortBy="newest"
+              limit={5}
+              showCaption={true}
             />
           </div>
         </div>

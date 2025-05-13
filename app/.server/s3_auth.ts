@@ -1,21 +1,41 @@
-import { S3Client, PutObjectCommand, GetObjectCommand } from "@aws-sdk/client-s3";
+import { S3Client, PutObjectCommand, GetObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
 // Load environment variables
 const AWS_ACCESS_KEY_ID = process.env.AWS_ACCESS_KEY_ID || "";
 const AWS_SECRET_ACCESS_KEY = process.env.AWS_SECRET_ACCESS_KEY || "";
-const BUCKET_NAME = "babybabylog"; // You may want to move this to .env as well
+const BUCKET_NAME = process.env.AWS_BUCKET_NAME || "babybabylog";
+const BUCKET_REGION = process.env.AWS_REGION || "us-east-1";
 
 /**
  * Initialize the S3 client
  */
 const s3Client = new S3Client({
-  region: "us-east-1", // Replace with your bucket's region if different
+  region: BUCKET_REGION,
   credentials: {
     accessKeyId: AWS_ACCESS_KEY_ID,
     secretAccessKey: AWS_SECRET_ACCESS_KEY,
   },
 });
+
+/**
+ * Extracts the key from a full S3 URL or returns the key if it's already just a key
+ */
+function extractKeyFromUrl(urlOrKey: string): string {
+  try {
+    // If it's a full URL, extract the key
+    if (urlOrKey.startsWith('http')) {
+      const url = new URL(urlOrKey);
+      // Remove the leading slash if it exists
+      return url.pathname.replace(/^\//, '');
+    }
+    // If it's just a key, return it as is
+    return urlOrKey;
+  } catch (e) {
+    // If URL parsing fails, assume it's just a key
+    return urlOrKey;
+  }
+}
 
 /**
  * Creates a pre-signed URL for uploading a file to S3
@@ -42,20 +62,28 @@ export async function createUploadUrl(
 /**
  * Creates a pre-signed URL for downloading a file from S3
  * 
- * @param key - The object key (file path) in the S3 bucket
+ * @param urlOrKey - The full URL or key of the file in S3
  * @param expiresIn - URL expiration time in seconds (default: 3600 seconds / 1 hour)
  * @returns Promise with the pre-signed URL
  */
 export async function createDownloadUrl(
-  key: string,
+  urlOrKey: string,
   expiresIn: number = 3600
 ): Promise<string> {
+  const key = extractKeyFromUrl(urlOrKey);
+  
   const command = new GetObjectCommand({
     Bucket: BUCKET_NAME,
     Key: key,
   });
 
-  return await getSignedUrl(s3Client, command, { expiresIn });
+  try {
+    return await getSignedUrl(s3Client, command, { expiresIn });
+  } catch (error) {
+    console.error("Error creating download URL:", error);
+    // Return a fallback URL that will show a placeholder or error image
+    return `/images/placeholder.png`;
+  }
 }
 
 /**
@@ -101,5 +129,28 @@ export async function prepareFileUpload(file: File) {
  * @returns The permanent S3 URL
  */
 export function getS3Url(key: string): string {
-  return `https://${BUCKET_NAME}.s3.amazonaws.com/${key}`;
+  const cleanKey = extractKeyFromUrl(key);
+  return `https://${BUCKET_NAME}.s3.${BUCKET_REGION}.amazonaws.com/${cleanKey}`;
+}
+
+/**
+ * Deletes a file from S3
+ * 
+ * @param urlOrKey - The full URL or key of the file in S3
+ * @returns Promise that resolves when deletion is complete
+ */
+export async function deleteFromS3(urlOrKey: string): Promise<void> {
+  const key = extractKeyFromUrl(urlOrKey);
+  
+  const command = new DeleteObjectCommand({
+    Bucket: BUCKET_NAME,
+    Key: key,
+  });
+
+  try {
+    await s3Client.send(command);
+  } catch (error) {
+    console.error("Error deleting from S3:", error);
+    throw error;
+  }
 }
