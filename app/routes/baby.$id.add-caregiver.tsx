@@ -14,7 +14,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
   return redirect(`/baby/${babyId}`);
 }
 
-export async function action({ request, params }: ActionFunctionArgs) {
+export async function action({ request, params, context }: ActionFunctionArgs) {
+  const { prisma } = context;
   const userId = await requireUserId(request);
   const formData = await request.formData();
   const babyId = Number(params.id);
@@ -26,7 +27,13 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
   try {
     // Use the inviteNewCaregiver function to create the invitation
-    await inviteNewCaregiver(babyId, email.toLowerCase(), userId);
+    await inviteNewCaregiver(
+      prisma,
+      request,
+      babyId,
+      email.toLowerCase(),
+      userId
+    );
     return redirect(`/baby/${babyId}`);
   } catch (error) {
     console.error("Error inviting caregiver:", error);

@@ -31,9 +31,10 @@ interface Baby {
   caregivers: Caregiver[];
 }
 
-export async function loader({ request, params }: LoaderFunctionArgs) {
+export async function loader({ request, params, context }: LoaderFunctionArgs) {
+  const { prisma } = context;
   const userId = await requireUserId(request);
-  const baby = await getBaby(Number(params.id), {
+  const baby = await getBaby(prisma, Number(params.id), {
     include: {
       caregivers: {
         include: {
@@ -57,7 +58,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   if (!isAuthorized) return redirect("/dashboard");
 
   const { eliminations, feedings, sleepSessions, photos } =
-    await getRecentTrackingEvents(request, baby.id);
+    await getRecentTrackingEvents(prisma, request, baby.id);
 
   return { baby, eliminations, feedings, sleepSessions, photos };
 }

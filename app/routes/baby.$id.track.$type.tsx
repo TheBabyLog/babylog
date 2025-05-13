@@ -14,7 +14,7 @@ import {
 } from "~/.server/tracking";
 import { TrackingModal } from "~/components/tracking/TrackingModal";
 import { t } from "~/src/utils/translate";
-import type { Baby, BabyCaregiver } from "@prisma/client";
+import { Baby, BabyCaregiver } from "prisma/generated/client";
 
 type TrackingType = "elimination" | "feeding" | "sleep" | "photo";
 
@@ -180,9 +180,10 @@ function getTrackingConfig(type: TrackingType) {
   return configs[type];
 }
 
-export async function loader({ request, params }: LoaderFunctionArgs) {
+export async function loader({ request, params, context }: LoaderFunctionArgs) {
+  const { prisma } = context;
   const userId = await requireUserId(request);
-  const baby = await getBaby(Number(params.id));
+  const baby = await getBaby(prisma, Number(params.id));
 
   if (!baby) return redirect("/dashboard");
   const isAuthorized =
@@ -206,7 +207,8 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   );
 }
 
-export async function action({ request, params }: ActionFunctionArgs) {
+export async function action({ request, params, context }: ActionFunctionArgs) {
+  const { prisma } = context;
   const formData = await request.formData();
   const type = params.type as TrackingType;
   const babyId = Number(params.id);
@@ -221,29 +223,30 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
   switch (type) {
     case "elimination":
-      await trackElimination(request, {
+      await trackElimination(prisma, request, {
         ...baseData,
         timestamp,
         weight: formData.get("weight") ? Number(formData.get("weight")) : null,
       });
       break;
     case "feeding":
-      await trackFeeding(request, {
+      await trackFeeding(prisma, request, {
         ...baseData,
         startTime: timestamp,
         amount: formData.get("amount") ? Number(formData.get("amount")) : null,
       });
       break;
     case "sleep":
-      await trackSleep(request, {
+      await trackSleep(prisma, request, {
         ...baseData,
         startTime: timestamp,
         quality: formData.get("quality")
           ? Number(formData.get("quality"))
           : null,
       });
+      break;
     case "photo":
-      await trackPhoto(request, {
+      await trackPhoto(prisma, request, {
         ...baseData,
         timestamp: timestamp,
         id: 0,

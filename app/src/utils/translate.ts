@@ -1,5 +1,5 @@
-import { en } from '../translations/en';
-import { es } from '../translations/es';
+import { en } from "../translations/en";
+import { es } from "../translations/es";
 
 type NestedKeyOf<ObjectType extends object> = {
   [Key in keyof ObjectType & (string | number)]: ObjectType[Key] extends object
@@ -9,11 +9,11 @@ type NestedKeyOf<ObjectType extends object> = {
 
 export type TranslationKey = NestedKeyOf<typeof en>;
 
-const isBrowser = typeof window !== 'undefined';
+const isBrowser = typeof window !== "undefined";
 
-let currentLanguage = 'en';
+let currentLanguage = "en";
 if (isBrowser) {
-  currentLanguage = localStorage.getItem('language') || 'en';
+  currentLanguage = localStorage.getItem("language") || "en";
 }
 
 const translations: { [key: string]: typeof en } = {
@@ -23,19 +23,27 @@ const translations: { [key: string]: typeof en } = {
 
 export const getCurrentLanguage = () => currentLanguage;
 
-export function t(key: string, params: Record<string, string | number> = {}): string {
+export function t(
+  key: string,
+  params: Record<string, string | number> = {}
+): string {
   if (!translations[currentLanguage]) {
-    console.warn(`Translation language ${currentLanguage} not loaded, falling back to English`);
-    currentLanguage = 'en';
+    console.warn(
+      `Translation language ${currentLanguage} not loaded, falling back to English`
+    );
+    currentLanguage = "en";
   }
 
-  const keys = key.split('.');
-  let translation = keys.reduce<unknown>((obj, key) => 
-    obj && typeof obj === 'object' ? (obj as Record<string, unknown>)[key] : undefined, 
+  const keys = key.split(".");
+  let translation = keys.reduce<unknown>(
+    (obj, key) =>
+      obj && typeof obj === "object"
+        ? (obj as Record<string, unknown>)[key]
+        : undefined,
     translations[currentLanguage]
   );
 
-  if (typeof translation !== 'string') {
+  if (typeof translation !== "string") {
     console.warn(`Translation missing for key: ${key}`);
     return key;
   }
@@ -54,9 +62,9 @@ export const setLanguage = (lang: string) => {
   if (translations[lang]) {
     currentLanguage = lang;
     if (isBrowser) {
-      localStorage.setItem('language', lang);
+      localStorage.setItem("language", lang);
     }
   } else {
     console.warn(`Language ${lang} not loaded`);
   }
-}; 
+};
