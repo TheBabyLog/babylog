@@ -262,8 +262,8 @@ export async function getRecentTrackingEvents(
   ]);
 
   // Generate signed URLs for photos
-  const photos = await Promise.all(
-    rawPhotos.map(async (photo) => {
+  const signedPhotos = await Promise.all(
+    photos.map(async (photo) => {
       try {
         const signedUrl = await createDownloadUrl(photo.url);
         return {
@@ -282,7 +282,7 @@ export async function getRecentTrackingEvents(
     eliminations,
     feedings,
     sleepSessions,
-    photos,
+    photos: signedPhotos,
   };
 }
 
