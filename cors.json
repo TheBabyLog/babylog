@@ -1,7 +1,7 @@
 {
   "CORSRules": [
     {
-      "AllowedOrigins": ["http://localhost:3000", "http://localhost:*"],
+      "AllowedOrigins": ["http://localhost:3000", "http://localhost:*", "https://babylog.me"],
       "AllowedHeaders": ["*"],
       "AllowedMethods": ["GET", "PUT", "POST", "DELETE", "HEAD"],
       "MaxAgeSeconds": 3000,
