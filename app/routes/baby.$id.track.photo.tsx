@@ -8,12 +8,16 @@ import { useLoaderData } from "@remix-run/react";
 import { getBaby } from "~/.server/baby";
 import { requireUserId } from "~/.server/session";
 import { trackPhoto } from "~/.server/tracking";
-import { prepareFileUpload, getS3Url } from "~/.server/s3_auth";
+import { prepareFileUpload } from "~/.server/s3_auth";
 import { TrackingModal } from "~/components/tracking/TrackingModal";
 import { t } from "~/src/utils/translate";
-import type { Baby, BabyCaregiver } from "@prisma/client";
+import type { Baby, BabyCaregiver, PrismaClient } from "@prisma/client";
 
-export async function loader({ request, params, context }: LoaderFunctionArgs) {
+export async function loader({
+  request,
+  params,
+  context,
+}: LoaderFunctionArgs & { context: { prisma: PrismaClient } }) {
   const { prisma } = context;
   const userId = await requireUserId(request);
   const baby = await getBaby(prisma, Number(params.id));
@@ -30,7 +34,11 @@ export async function loader({ request, params, context }: LoaderFunctionArgs) {
   return { baby };
 }
 
-export async function action({ request, params, context }: ActionFunctionArgs) {
+export async function action({
+  request,
+  params,
+  context,
+}: ActionFunctionArgs & { context: { prisma: PrismaClient } }) {
   const { prisma } = context;
   const formData = await request.formData();
   const babyId = Number(params.id);
@@ -70,11 +78,9 @@ export async function action({ request, params, context }: ActionFunctionArgs) {
         throw new Error(`Failed to upload file: ${response.statusText}`);
       }
 
-      const s3Url = getS3Url(uploadDetails.filename);
-
       await trackPhoto(prisma, request, {
         id: 0,
-        url: s3Url,
+        url: uploadDetails.filename,
         caption,
         timestamp: new Date(),
         babyId,
