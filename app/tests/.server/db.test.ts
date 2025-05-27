@@ -41,7 +41,7 @@
 import { vi, describe, it, expect } from "vitest";
 
 // First define the mocks
-vi.mock("@prisma/client/edge", () => ({
+vi.mock("@prisma/client", () => ({
   PrismaClient: vi.fn(() => ({
     $connect: vi.fn(),
     $disconnect: vi.fn(),
@@ -56,7 +56,7 @@ vi.mock("@prisma/extension-accelerate", () => ({
 
 // Then import your modules after all mocks are defined
 import { getPrismaClient } from "~/db.server";
-import { PrismaClient } from "@prisma/client/edge";
+import { PrismaClient } from "@prisma/client";
 import { withAccelerate } from "@prisma/extension-accelerate";
 
 describe("getPrismaClient", () => {
