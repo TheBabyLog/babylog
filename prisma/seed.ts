@@ -63,7 +63,7 @@ async function seed() {
           },
         ],
       },
-      sleepSessions: {
+      sleepsleepSessions: {
         create: [
           {
             startTime: new Date('2024-01-01T09:00:00Z'),
