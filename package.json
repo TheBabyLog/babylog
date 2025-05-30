@@ -19,7 +19,10 @@
     "prisma:migrate": "dotenv -e .dev.vars -- npx prisma migrate dev",
     "prisma:generate": "dotenv -e .dev.vars -- npx prisma generate --no-engine",
     "prisma:studio": "dotenv -e .dev.vars -- npx prisma studio",
-    "cloudflare:logs": "npx wrangler tail"
+    "cloudflare:logs": "npx wrangler tail",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:debug": "playwright test --debug"
   },
   "cloudflare": {
     "label": "Remix Framework Starter",
@@ -50,11 +53,13 @@
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20250422.0",
+    "@playwright/test": "^1.52.0",
     "@remix-run/dev": "2.16.4",
     "@remix-run/testing": "^2.16.5",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.3.0",
     "@types/jest": "^29.5.14",
+    "@types/node": "^22.15.24",
     "@types/react": "18.3.12",
     "@types/react-dom": "18.3.1",
     "@typescript-eslint/eslint-plugin": "8.29.0",
