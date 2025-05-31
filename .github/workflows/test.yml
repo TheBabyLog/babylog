@@ -11,7 +11,17 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-    name: Test
+    services:
+      postgres:
+        image: postgres:15
+        ports: [5432:5432]
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: testdb
+    env:
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/testdb
+
     steps:
       # Check out the repository code
       - uses: actions/checkout@v3
@@ -34,19 +44,25 @@ jobs:
       - name: Generate Prisma Client
         run: npx prisma generate --no-engine
         env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          DATABASE_URL: ${{ env.DATABASE_URL }}
+
+      # Run DB migrations
+      - name: Run DB migrations
+        run: npx prisma migrate deploy
+        env:
+          DATABASE_URL: ${{ env.DATABASE_URL }}
 
       # Run unit tests
       - name: Run unit tests
         run: npm test
         env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          DATABASE_URL: ${{ env.DATABASE_URL }}
 
       # Start the app server in the background
       - name: Start app server
         run: npm run dev &
         env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          DATABASE_URL: ${{ env.DATABASE_URL }}
 
       # Wait for the app to be ready
       - name: Wait for app server
@@ -56,7 +72,7 @@ jobs:
       - name: Run E2E tests
         run: npm run test:e2e
         env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          DATABASE_URL: ${{ env.DATABASE_URL }}
           BASE_URL: http://localhost:5173
 
       # Upload test results
