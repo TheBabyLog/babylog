@@ -86,6 +86,8 @@ export const en = {
       },
     },
     photo: {
+      title: 'Upload Photo',
+      upload: 'Photo',
       uploaded: 'Uploaded',
       caption: 'Caption',
       captionPlaceholder: 'Add a caption...',
