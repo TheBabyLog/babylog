@@ -59,8 +59,13 @@ jobs:
           DATABASE_URL: ${{ env.DATABASE_URL }}
 
       # Start the app server in the background
+      - name: Debug env
+        run: printenv | grep DATABASE_URL
+
       - name: Start app server
-        run: npm run dev &
+        run: |
+          export DATABASE_URL=${{ env.DATABASE_URL }}
+          npm run dev &
         env:
           DATABASE_URL: ${{ env.DATABASE_URL }}
 
