@@ -15,6 +15,8 @@ const prisma = getPrismaClient(process.env.DATABASE_URL!);
 const imagePath = path.resolve(process.cwd(), 'app/tests/assets/test-photo.png');
 const imageBuffer = fs.readFileSync(imagePath);
 
+console.log('PLAYWRIGHT ENV DATABASE_URL:', process.env.DATABASE_URL);
+
 test.afterEach(async () => {
   await prisma.photo.deleteMany({
     where: {

@@ -70,17 +70,20 @@ jobs:
         env:
           DATABASE_URL: ${{ env.DATABASE_URL }}
 
-      # Start app server (debug)
-      - name: Start app server (debug)
-        run: DATABASE_URL=${{ env.DATABASE_URL }} npm run dev
+      # Start app server
+      - name: Start app server
+        run: DATABASE_URL=${{ env.DATABASE_URL }} npm run dev &
         env:
           DATABASE_URL: ${{ env.DATABASE_URL }}
 
-      # Wait for the app to be ready
       - name: Wait for app server
         run: npx wait-on http://localhost:5173
 
-      # Run Playwright tests
+      - name: Print Playwright env
+        run: node -e "console.log('PW ENV DATABASE_URL:', process.env.DATABASE_URL)"
+        env:
+          DATABASE_URL: ${{ env.DATABASE_URL }}
+
       - name: Run Playwright tests
         run: npm run test:e2e
         env:
