@@ -20,7 +20,7 @@
     "prisma:generate": "dotenv -e .dev.vars -- npx prisma generate --no-engine",
     "prisma:studio": "dotenv -e .dev.vars -- npx prisma studio",
     "cloudflare:logs": "npx wrangler tail",
-    "test:e2e": "playwright test",
+    "test:e2e": "dotenv -e .env -- playwright test",
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:debug": "playwright test --debug"
   },
