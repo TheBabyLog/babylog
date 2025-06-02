@@ -11,14 +11,24 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-    name: Test
+    services:
+      postgres:
+        image: postgres:15
+        ports: [5432:5432]
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: testdb
+    env:
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/testdb
+
     steps:
       # Check out the repository code
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       # Setup Node.js environment
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: 20
 
@@ -26,15 +36,65 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      # Install Playwright browsers
+      - name: Install Playwright Browsers
+        run: npx playwright install --with-deps
+
       # Generate Prisma Client with the --no-engine flag
       - name: Generate Prisma Client
         run: npx prisma generate --no-engine
         env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          DATABASE_URL: ${{ env.DATABASE_URL }}
 
-      # Run tests (update this command to match your test script in package.json)
-      - name: Run tests
-        run: npm test
+      # Debug env
+      - name: Debug env
+        run: printenv | grep DATABASE_URL
+
+      # Print .env file
+      - name: Print .env file
+        run: cat .env || echo "No .env file found"
+
+      # Print all env vars
+      - name: Print all env vars
+        run: printenv
+
+      # Test Node env
+      - name: Test Node env
+        run: node -e "console.log('DATABASE_URL:', process.env.DATABASE_URL)"
         env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
-          # Add any other environment variables needed for tests
+          DATABASE_URL: ${{ env.DATABASE_URL }}
+
+      # Run DB migrations
+      - name: Run DB migrations
+        run: npx prisma migrate deploy
+        env:
+          DATABASE_URL: ${{ env.DATABASE_URL }}
+
+      # Start app server
+      - name: Start app server
+        run: DATABASE_URL=${{ env.DATABASE_URL }} npm run dev &
+        env:
+          DATABASE_URL: ${{ env.DATABASE_URL }}
+
+      - name: Wait for app server
+        run: npx wait-on http://localhost:5173
+
+      - name: Print Playwright env
+        run: node -e "console.log('PW ENV DATABASE_URL:', process.env.DATABASE_URL)"
+        env:
+          DATABASE_URL: ${{ env.DATABASE_URL }}
+
+      - name: Run Playwright tests
+        run: npm run test:e2e
+        env:
+          DATABASE_URL: ${{ env.DATABASE_URL }}
+          BASE_URL: http://localhost:5173
+
+      # Upload test results
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 30
