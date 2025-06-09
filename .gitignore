@@ -5,6 +5,14 @@ node_modules
 
 # Testing
 /coverage
+/playwright-report/
+/test-results/
+/playwright/.cache/
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.webp
 
 # Production
 /build
