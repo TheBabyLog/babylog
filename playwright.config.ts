@@ -29,6 +29,11 @@ export default defineConfig({
     timeout: 120000,
     env: {
       DATABASE_URL: 'postgresql://remix_user:remix_password@localhost:5432/remix_db',
+      NODE_ENV: 'test',
+      AWS_ACCESS_KEY_ID: process.env.AWS_ACCESS_KEY_ID || '',
+      AWS_SECRET_ACCESS_KEY: process.env.AWS_SECRET_ACCESS_KEY || '',
+      AWS_BUCKET_NAME: process.env.AWS_BUCKET_NAME || 'babybabylog',
+      AWS_REGION: process.env.AWS_REGION || 'us-east-1',
     },
   },
 }); 

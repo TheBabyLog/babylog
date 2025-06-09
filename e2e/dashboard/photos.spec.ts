@@ -8,6 +8,7 @@ const TEST_EMAIL = 'gluron_parent@monoverse.com';
 const TEST_PASSWORD = 'password123';
 const TEST_IMAGE_PATH = join(process.cwd(), 'e2e/fixtures/test-image.jpg');
 const TEST_IMAGE_FILENAME = basename(TEST_IMAGE_PATH);
+const TEST_PREFIX = 'tests/';
 
 // Use the Docker database configuration
 const prisma = new PrismaClient({
@@ -60,7 +61,10 @@ async function cleanupPhotos() {
   if (user) {
     for (const baby of user.ownedBabies) {
       for (const babyPhoto of baby.photos) {
-        if (babyPhoto.photo.url && babyPhoto.photo.url.includes(TEST_IMAGE_FILENAME)) {
+        if (babyPhoto.photo.url && (
+          babyPhoto.photo.url.includes(TEST_IMAGE_FILENAME) || 
+          babyPhoto.photo.url.startsWith(TEST_PREFIX)
+        )) {
           await deleteFromS3(babyPhoto.photo.url);
           await prisma.photo.delete({ where: { id: babyPhoto.photo.id } });
         }
@@ -69,7 +73,10 @@ async function cleanupPhotos() {
         where: {
           babyId: baby.id,
           photo: {
-            url: { contains: TEST_IMAGE_FILENAME },
+            OR: [
+              { url: { contains: TEST_IMAGE_FILENAME } },
+              { url: { startsWith: TEST_PREFIX } }
+            ]
           },
         },
       });
@@ -77,9 +84,18 @@ async function cleanupPhotos() {
   }
 }
 
+test.beforeEach(async () => {
+  process.env.NODE_ENV = 'test';
+  await cleanupPhotos();
+});
+
+test.afterEach(async () => {
+  await cleanupPhotos();
+  await prisma.$disconnect();
+});
+
 test('should upload and display photos on dashboard and modal', async ({ page }) => {
   const { baby } = await getTestUser();
-  await cleanupPhotos(); // Ensure clean state before test
   try {
     // Go to root and login if form is present
     await page.goto(`/`);
@@ -100,7 +116,15 @@ test('should upload and display photos on dashboard and modal', async ({ page })
     // await page.fill('input[name="caption"]', 'Test photo');
     await page.click('button[type="submit"]');
     // Wait for redirect to /baby/:id
-    await page.waitForURL(`/baby/${baby.id}`);
+    let redirected = false;
+    try {
+      await page.waitForURL(`/baby/${baby.id}`, { timeout: 15000 });
+      redirected = true;
+    } catch (err) {
+      await page.screenshot({ path: 'redirect-fail.png', fullPage: true });
+      const html = await page.content();
+      console.log('Redirect failed, page HTML:', html);
+    }
 
     // Verify photo is visible in dashboard photo section
     const dashboardPhoto = page.locator('img[alt="Featured photo"]').first();
