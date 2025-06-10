@@ -89,6 +89,8 @@ export const es: TranslationKeys = {
       },
     },
     photo: {
+      title: 'Subir Foto',
+      upload: 'Foto',
       uploaded: 'Subido el',
       caption: 'Título',
       captionPlaceholder: 'Agregar un título...',

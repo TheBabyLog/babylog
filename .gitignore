@@ -5,6 +5,14 @@ node_modules
 
 # Testing
 /coverage
+/playwright-report/
+/test-results/
+/playwright/.cache/
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.webp
 
 # Production
 /build
@@ -59,3 +67,9 @@ yarn-error.log*
 # Cloudflare
 /.wrangler
 .wrangler
+
+# Playwright
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/

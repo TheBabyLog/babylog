@@ -6,6 +6,7 @@ const AWS_ACCESS_KEY_ID = process.env.AWS_ACCESS_KEY_ID || "";
 const AWS_SECRET_ACCESS_KEY = process.env.AWS_SECRET_ACCESS_KEY || "";
 const BUCKET_NAME = process.env.AWS_BUCKET_NAME || "babybabylog";
 const BUCKET_REGION = process.env.AWS_REGION || "us-east-1";
+const TEST_PREFIX = "tests/";
 
 /**
  * Initialize the S3 client
@@ -101,7 +102,9 @@ export function generateUniqueFilename(filename: string): string {
   const extension = filename.split('.').pop() || '';
   const baseName = filename.split('.').slice(0, -1).join('.');
   
-  return `${baseName}-${timestamp}-${randomString}.${extension}`;
+  // Use test prefix when in test environment
+  const prefix = process.env.NODE_ENV === 'test' ? TEST_PREFIX : '';
+  return `${prefix}${baseName}-${timestamp}-${randomString}.${extension}`;
 }
 
 /**

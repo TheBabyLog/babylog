@@ -127,12 +127,14 @@ export function TrackingModal({
         }`}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
-        onDrop={(e) => handleDrop(e, field.id)}
+        onDrop={(e) => handleDrop(e, `field.${field.id}`)}
       >
         <div className="flex flex-col items-center gap-2">
           <button
             type="button"
-            onClick={() => document.getElementById(field.id)?.click()}
+            onClick={() =>
+              document.getElementById(`field.${field.id}`)?.click()
+            }
             className="px-4 py-2 bg-blue-50 text-blue-700 rounded-full text-sm font-semibold hover:bg-blue-100 transition-colors"
           >
             {t("tracking.chooseFile")}
@@ -141,8 +143,8 @@ export function TrackingModal({
             {t("tracking.dragAndDrop")}
           </span>
           <input
-            id={field.id}
-            name={field.id}
+            id={`field.${field.id}`}
+            name={`field.${field.id}`}
             type="file"
             className="hidden"
             required={field.required}
@@ -172,8 +174,8 @@ export function TrackingModal({
       case "select":
         return (
           <select
-            id={field.id}
-            name={field.id}
+            id={`field.${field.id}`}
+            name={`field.${field.id}`}
             className={inputClasses}
             required={field.required}
           >
@@ -187,8 +189,8 @@ export function TrackingModal({
       case "textarea":
         return (
           <textarea
-            id={field.id}
-            name={field.id}
+            id={`field.${field.id}`}
+            name={`field.${field.id}`}
             className={inputClasses}
             rows={3}
             placeholder={field.placeholder}
@@ -197,8 +199,8 @@ export function TrackingModal({
       case "text":
         return (
           <input
-            id={field.id}
-            name={field.id}
+            id={`field.${field.id}`}
+            name={`field.${field.id}`}
             type="text"
             className="w-full p-2 border rounded bg-black text-white"
             required={field.required}
@@ -234,7 +236,7 @@ export function TrackingModal({
         >
           {fields.map((field) => (
             <div key={field.id} className="mb-4">
-              <label htmlFor={field.id} className={labelClasses}>
+              <label htmlFor={`field.${field.id}`} className={labelClasses}>
                 {field.label}
               </label>
               {renderField(field)}

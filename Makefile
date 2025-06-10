@@ -87,6 +87,10 @@ format: ## Format code with Prettier
 test: ## Run vitest 
 	npm run test 
 
+clean-tests: ## Cleanup test data
+	node e2e/scripts/cleanup-db-tests.cjs
+	bash e2e/scripts/cleanup-s3-tests.sh
+
 prisma-generate: ## Generate Prisma types
 	@if [ ! -d "node_modules/.prisma/client" ]; then \
 		echo "Generating Prisma client..." && \

@@ -45,8 +45,8 @@ export async function action({
   await requireUserId(request);
 
   try {
-    const caption = (formData.get("caption") as string) || undefined;
-    const photoFile = formData.get("photo") as File;
+    const caption = (formData.get("field.caption") as string) || undefined;
+    const photoFile = formData.get("field.photo") as File;
 
     if (!photoFile || !(photoFile instanceof File)) {
       throw new Error("No photo file uploaded");
