@@ -15,8 +15,23 @@ import {
 import { TrackingModal } from "~/components/tracking/TrackingModal";
 import { t } from "~/src/utils/translate";
 import { Baby, BabyCaregiver } from "prisma/generated/client";
+import React, { useState } from "react";
 
 type TrackingType = "elimination" | "feeding" | "sleep" | "photo";
+
+type FieldType = "text" | "number" | "select" | "textarea" | "datetime-local";
+interface Field {
+  id: string;
+  label: string;
+  type: FieldType;
+  options?: { value: string; label: string }[];
+  required?: boolean;
+  placeholder?: string;
+  accept?: string;
+  dragDrop?: boolean;
+  defaultValue?: string | number | null;
+  onChange?: (e: React.ChangeEvent<any>) => void;
+}
 
 function getTrackingConfig(type: TrackingType) {
   const configs = {
@@ -57,10 +72,16 @@ function getTrackingConfig(type: TrackingType) {
       title: t("tracking.feeding.title"),
       fields: [
         {
-          id: "timestamp",
-          label: t("tracking.when"),
+          id: "startTime",
+          label: t("tracking.feeding.startTime"),
           type: "datetime-local" as const,
           required: true,
+        },
+        {
+          id: "endTime",
+          label: t("tracking.feeding.endTime"),
+          type: "datetime-local" as const,
+          required: false,
         },
         {
           id: "type",
@@ -70,13 +91,28 @@ function getTrackingConfig(type: TrackingType) {
           options: [
             { value: "breast", label: t("tracking.feeding.types.breast") },
             { value: "bottle", label: t("tracking.feeding.types.bottle") },
-            { value: "formula", label: t("tracking.feeding.types.formula") },
+            { value: "solid", label: t("tracking.feeding.types.solid") },
+          ],
+        },
+        {
+          id: "side",
+          label: t("tracking.feeding.side"),
+          type: "select" as const,
+          required: false,
+          options: [
+            { value: "left", label: t("tracking.feeding.sides.left") },
+            { value: "right", label: t("tracking.feeding.sides.right") },
           ],
         },
         {
           id: "amount",
           label: t("tracking.feeding.amount"),
           type: "number" as const,
+        },
+        {
+          id: "food",
+          label: t("tracking.feeding.food"),
+          type: "text" as const,
         },
         {
           id: "notes",
@@ -232,7 +268,12 @@ export async function action({ request, params, context }: ActionFunctionArgs) {
     case "feeding":
       await trackFeeding(prisma, request, {
         ...baseData,
-        startTime: timestamp,
+        startTime: formData.get("startTime")
+          ? new Date(formData.get("startTime") as string)
+          : null,
+        endTime: formData.get("endTime")
+          ? new Date(formData.get("endTime") as string)
+          : null,
         amount: formData.get("amount") ? Number(formData.get("amount")) : null,
       });
       break;
@@ -264,14 +305,49 @@ export async function action({ request, params, context }: ActionFunctionArgs) {
 export default function TrackEvent() {
   const { baby, trackingConfig } = useLoaderData<typeof loader>();
   const type = trackingConfig.title.toLowerCase() as TrackingType;
-
   const config = getTrackingConfig(type);
+
+  // Conditional feeding fields logic
+  const [selectedFeedingType, setSelectedFeedingType] = useState<
+    string | undefined
+  >(type === "feeding" ? undefined : undefined);
+
+  let fieldsToShow = config.fields;
+  if (type === "feeding") {
+    // Default to first option if not set
+    const currentType = selectedFeedingType || "breast";
+    fieldsToShow = config.fields.filter((field) => {
+      if (field.id === "side") {
+        return currentType === "breast";
+      }
+      if (field.id === "amount") {
+        return currentType === "bottle";
+      }
+      if (field.id === "food") {
+        return currentType === "solid";
+      }
+      // Always show type, startTime, endTime, notes
+      return ["type", "startTime", "endTime", "notes"].includes(field.id);
+    });
+    // Patch the type field to add onChange handler
+    fieldsToShow = fieldsToShow.map((field) => {
+      if (field.id === "type") {
+        return {
+          ...field,
+          onChange: (e: React.ChangeEvent<HTMLSelectElement>) => {
+            setSelectedFeedingType(e.target.value);
+          },
+        };
+      }
+      return field;
+    });
+  }
 
   return (
     <TrackingModal
       babyId={baby.id}
       title={config.title}
-      fields={config.fields}
+      fields={fieldsToShow}
     />
   );
 }

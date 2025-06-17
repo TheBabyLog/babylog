@@ -23,6 +23,7 @@ import {
 } from "~/.server/tracking";
 import { t } from "~/src/utils/translate";
 import { Baby, BabyCaregiver } from "prisma/generated/client";
+import React, { useState } from "react";
 
 type FieldType = "text" | "number" | "select" | "textarea" | "datetime-local";
 
@@ -32,7 +33,11 @@ interface Field {
   type: FieldType;
   options?: { value: string; label: string }[];
   required?: boolean;
+  placeholder?: string;
+  accept?: string;
+  dragDrop?: boolean;
   defaultValue?: string | number | null;
+  onChange?: (e: React.ChangeEvent<any>) => void;
 }
 
 const TRACKING_FIELDS: Record<string, Field[]> = {
@@ -360,11 +365,45 @@ export default function EditTracking() {
       break;
   }
 
+  // Conditional feeding fields logic
+  const [selectedFeedingType, setSelectedFeedingType] = useState(
+    trackingType === "feeding" ? (defaultValues.type as string) : undefined
+  );
+
+  let fieldsToShow = TRACKING_FIELDS[trackingType];
+  if (trackingType === "feeding") {
+    fieldsToShow = TRACKING_FIELDS.feeding.filter((field) => {
+      if (field.id === "side") {
+        return selectedFeedingType === "breast";
+      }
+      if (field.id === "amount") {
+        return selectedFeedingType === "bottle";
+      }
+      if (field.id === "food") {
+        return selectedFeedingType === "solid";
+      }
+      // Always show type, startTime, endTime, notes
+      return ["type", "startTime", "endTime", "notes"].includes(field.id);
+    });
+    // Patch the type field to add onChange handler
+    fieldsToShow = fieldsToShow.map((field) => {
+      if (field.id === "type") {
+        return {
+          ...field,
+          onChange: (e: React.ChangeEvent<HTMLSelectElement>) => {
+            setSelectedFeedingType(e.target.value);
+          },
+        };
+      }
+      return field;
+    });
+  }
+
   return (
     <TrackingModal
       babyId={baby.id}
       title={t(`tracking.edit.${trackingType}`)}
-      fields={TRACKING_FIELDS[trackingType].map((field) => ({
+      fields={fieldsToShow.map((field) => ({
         ...field,
         defaultValue: defaultValues[field.id],
       }))}
