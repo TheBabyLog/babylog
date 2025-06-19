@@ -29,6 +29,12 @@ export const en = {
     noBabies: "No babies added yet.",
   },
   tracking: {
+    edit: {
+      elimination: "Edit Elimination",
+      feeding: "Edit Feeding",
+      sleep: "Edit Sleep",
+      photo: "Edit Photo",
+    },
     when: "When",
     type: "Type",
     notes: "Notes",

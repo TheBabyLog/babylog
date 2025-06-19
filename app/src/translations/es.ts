@@ -32,6 +32,12 @@ export const es: TranslationKeys = {
     noBabies: "Aún no hay bebés agregados.",
   },
   tracking: {
+    edit: {
+      elimination: "Editar Eliminación",
+      feeding: "Editar Alimentación",
+      sleep: "Editar Sueño",
+      photo: "Editar Foto",
+    },
     when: "Cuándo",
     type: "Tipo",
     notes: "Notas",

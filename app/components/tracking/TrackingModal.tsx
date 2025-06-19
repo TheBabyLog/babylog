@@ -12,6 +12,8 @@ interface Field {
   placeholder?: string;
   accept?: string;
   dragDrop?: boolean;
+  defaultValue?: string | number | null;
+  onChange?: (e: React.ChangeEvent<any>) => void;
 }
 
 interface TrackingModalProps {
@@ -176,6 +178,8 @@ export function TrackingModal({
             name={field.id}
             className={inputClasses}
             required={field.required}
+            defaultValue={field.defaultValue || ""}
+            onChange={field.onChange}
           >
             {field.options?.map((option) => (
               <option key={option.value} value={option.value}>
@@ -203,6 +207,20 @@ export function TrackingModal({
             className="w-full p-2 border rounded bg-black text-white"
             required={field.required}
             placeholder={field.placeholder}
+          />
+        );
+      case "number":
+        return (
+          <input
+            id={`field.${field.id}`}
+            name={field.id}
+            type="number"
+            className="w-full p-2 border rounded bg-black text-white"
+            required={field.required}
+            placeholder={field.placeholder}
+            defaultValue={field.defaultValue || ""}
+            min={0}
+            step="any"
           />
         );
       default:
@@ -237,7 +255,18 @@ export function TrackingModal({
               <label htmlFor={field.id} className={labelClasses}>
                 {field.label}
               </label>
-              {renderField(field)}
+              {field.type === "datetime-local" ? (
+                <input
+                  id={`field.${field.id}`}
+                  type="datetime-local"
+                  name={field.id}
+                  defaultValue={field.defaultValue || ""}
+                  className={inputClasses}
+                  required={field.required}
+                />
+              ) : (
+                renderField(field)
+              )}
             </div>
           ))}
 
