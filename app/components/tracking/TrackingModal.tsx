@@ -84,6 +84,22 @@ export function TrackingModal({
     "w-full p-2 border rounded bg-black text-white [&>option]:text-black";
   const labelClasses = "block text-sm font-medium mb-1 text-white";
 
+  const handleInvalid = (
+    e: React.FormEvent<
+      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+    >
+  ) => {
+    e.currentTarget.setCustomValidity(t("form.errors.required"));
+  };
+
+  const handleInput = (
+    e: React.FormEvent<
+      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+    >
+  ) => {
+    e.currentTarget.setCustomValidity("");
+  };
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -150,6 +166,8 @@ export function TrackingModal({
             required={field.required}
             accept={field.accept}
             onChange={handleFileChange}
+            onInvalid={handleInvalid}
+            onInput={handleInput}
           />
         </div>
         {previewUrl && (
@@ -180,6 +198,8 @@ export function TrackingModal({
             required={field.required}
             defaultValue={field.defaultValue || ""}
             onChange={field.onChange}
+            onInvalid={handleInvalid}
+            onInput={handleInput}
           >
             {field.options?.map((option) => (
               <option key={option.value} value={option.value}>
@@ -196,6 +216,9 @@ export function TrackingModal({
             className={inputClasses}
             rows={3}
             placeholder={field.placeholder}
+            required={field.required}
+            onInvalid={handleInvalid}
+            onInput={handleInput}
           />
         );
       case "text":
@@ -207,6 +230,8 @@ export function TrackingModal({
             className="w-full p-2 border rounded bg-black text-white"
             required={field.required}
             placeholder={field.placeholder}
+            onInvalid={handleInvalid}
+            onInput={handleInput}
           />
         );
       case "number":
@@ -221,6 +246,8 @@ export function TrackingModal({
             defaultValue={field.defaultValue || ""}
             min={0}
             step="any"
+            onInvalid={handleInvalid}
+            onInput={handleInput}
           />
         );
       default:
@@ -263,6 +290,8 @@ export function TrackingModal({
                   defaultValue={field.defaultValue || ""}
                   className={inputClasses}
                   required={field.required}
+                  onInvalid={handleInvalid}
+                  onInput={handleInput}
                 />
               ) : (
                 renderField(field)

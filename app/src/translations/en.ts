@@ -189,6 +189,11 @@ export const en = {
     delete: 'Delete',
     deleteConfirmation: 'Are you sure you want to delete this photo?',
   },
+  form: {
+    errors: {
+      required: "Please fill out this field.",
+    },
+  },
   // Add more translation categories as needed
 };
 

@@ -192,5 +192,10 @@ export const es: TranslationKeys = {
     delete: 'Eliminar',
     deleteConfirmation: '¿Estás seguro de querer eliminar esta foto?',
   },
+  form: {
+    errors: {
+      required: "Por favor, completa este campo.",
+    },
+  },
   // Add more translation categories as needed
 };
