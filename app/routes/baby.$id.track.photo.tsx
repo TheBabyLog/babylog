@@ -1,15 +1,15 @@
-import { useMemo } from "react";
 import {
   ActionFunctionArgs,
   LoaderFunctionArgs,
+  json,
   redirect,
 } from "@remix-run/node";
-import { useLoaderData } from "@remix-run/react";
+import { useActionData, useLoaderData } from "@remix-run/react";
 import { getBaby } from "~/.server/baby";
 import { requireUserId } from "~/.server/session";
 import { trackPhoto } from "~/.server/tracking";
 import { prepareFileUpload } from "~/.server/s3_auth";
-import { TrackingModal } from "~/components/tracking/TrackingModal";
+import { PhotoTrackingModal } from "~/components/tracking/PhotoTrackingModal";
 import { t } from "~/src/utils/translate";
 import type { Baby, BabyCaregiver, PrismaClient } from "@prisma/client";
 
@@ -31,7 +31,7 @@ export async function loader({
 
   if (!isAuthorized) return redirect("/dashboard");
 
-  return { baby };
+  return json({ baby });
 }
 
 export async function action({
@@ -44,89 +44,65 @@ export async function action({
   const babyId = Number(params.id);
   await requireUserId(request);
 
+  const caption = (formData.get("caption") as string) || undefined;
+  const photoFile = formData.get("photo") as File;
+
+  if (!photoFile || photoFile.size === 0) {
+    return json({ error: "noFileSelected" }, { status: 400 });
+  }
+
+  if (!photoFile.type.startsWith("image/")) {
+    return json({ error: "invalidFileType" }, { status: 400 });
+  }
+
+  const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB in bytes
+  if (photoFile.size > MAX_FILE_SIZE) {
+    return json({ error: "fileTooLarge" }, { status: 400 });
+  }
+
   try {
-    const caption = (formData.get("caption") as string) || undefined;
-    const photoFile = formData.get("photo") as File;
+    const uploadDetails = await prepareFileUpload(photoFile);
 
-    if (!photoFile || !(photoFile instanceof File)) {
-      throw new Error("No photo file uploaded");
+    const response = await fetch(uploadDetails.uploadUrl, {
+      method: "PUT",
+      body: await photoFile.arrayBuffer(),
+      headers: {
+        "Content-Type": uploadDetails.contentType,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to upload file: ${response.statusText}`);
     }
 
-    // Validate file type
-    if (!photoFile.type.startsWith("image/")) {
-      throw new Error("Only image files are allowed");
-    }
+    await trackPhoto(prisma, request, {
+      id: 0,
+      url: uploadDetails.filename,
+      caption,
+      timestamp: new Date(),
+      babyId,
+    });
 
-    // Validate file size (e.g., 5MB limit)
-    const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB in bytes
-    if (photoFile.size > MAX_FILE_SIZE) {
-      throw new Error("File size exceeds 5MB limit");
-    }
-
-    try {
-      const uploadDetails = await prepareFileUpload(photoFile);
-
-      const response = await fetch(uploadDetails.uploadUrl, {
-        method: "PUT",
-        body: await photoFile.arrayBuffer(),
-        headers: {
-          "Content-Type": uploadDetails.contentType,
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error(`Failed to upload file: ${response.statusText}`);
-      }
-
-      await trackPhoto(prisma, request, {
-        id: 0,
-        url: uploadDetails.filename,
-        caption,
-        timestamp: new Date(),
-        babyId,
-      });
-
-      return redirect(`/baby/${babyId}`);
-    } catch (error) {
-      console.error("Upload error:", error);
-      throw new Error("Failed to upload photo");
-    }
+    return redirect(`/baby/${babyId}`);
   } catch (error) {
-    console.error("Processing error:", error);
-    throw error instanceof Error ? error : new Error("Unknown error occurred");
+    console.error("Upload error:", error);
+    return json({ error: "uploadFailed" }, { status: 500 });
   }
 }
 
 export default function TrackPhoto() {
   const { baby } = useLoaderData<typeof loader>();
+  const actionData = useActionData<typeof action>();
 
-  const fields = useMemo(
-    () => [
-      {
-        id: "photo",
-        label: t("tracking.photo.upload"),
-        type: "file" as const,
-        required: true,
-        accept: "image/*",
-        dragDrop: true, // Enable drag and drop
-      },
-      {
-        id: "caption",
-        label: t("tracking.photo.caption"),
-        type: "text" as const,
-        required: false,
-        placeholder: t("tracking.photo.captionPlaceholder"),
-      },
-    ],
-    []
-  );
+  const getErrorMessage = (errorKey: string | undefined) => {
+    if (!errorKey) return null;
+    return t(`form.errors.${errorKey}`);
+  };
 
   return (
-    <TrackingModal
+    <PhotoTrackingModal
       babyId={baby.id}
-      title={t("tracking.photo.title")}
-      fields={fields}
-      multipart={true}
+      error={getErrorMessage(actionData?.error)}
     />
   );
 }

@@ -92,6 +92,8 @@ export const en = {
       },
     },
     photo: {
+      title: "Photo",
+      upload: "Upload Photo",
       uploaded: 'Uploaded',
       caption: 'Caption',
       captionPlaceholder: 'Add a caption...',
@@ -177,7 +179,7 @@ export const en = {
       back: "Back",
       confirm: "Confirm",
     },
-    close: "cerrar",
+    close: "Close",
   },
   settings: {
     language: "Language",
@@ -192,6 +194,10 @@ export const en = {
   form: {
     errors: {
       required: "Please fill out this field.",
+      noFileSelected: "You haven't selected any photo.",
+      invalidFileType: "Invalid file format.",
+      fileTooLarge: "File is too large. Maximum size is 5MB.",
+      uploadFailed: "Failed to upload photo. Please try again.",
     },
   },
   // Add more translation categories as needed

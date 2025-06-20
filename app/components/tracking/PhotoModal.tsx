@@ -1,5 +1,6 @@
 import { Link } from "@remix-run/react";
 import { Edit, Trash2 } from "lucide-react";
+import { useEffect } from "react";
 import { t } from "~/src/utils/translate";
 
 interface DashboardPhotos {
@@ -26,6 +27,16 @@ export function PhotoModal({
   babyId,
 }: PhotoModalProps) {
   if (!isOpen) return null;
+
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        onClose();
+      }
+    };
+    window.addEventListener("keydown", handleEscape);
+    return () => window.removeEventListener("keydown", handleEscape);
+  }, [onClose]);
 
   // Format date for display
   const formatDate = (date: Date) => {
