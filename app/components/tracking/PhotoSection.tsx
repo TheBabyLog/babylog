@@ -68,7 +68,6 @@ export function PhotoSection({
         { photoId: photoId.toString() },
         { method: "DELETE", action: `/baby/${babyId}/photos/${photoId}` }
       );
-      handleCloseModal();
     }
   };
 
@@ -201,6 +200,7 @@ export function PhotoSection({
           onClose={handleCloseModal}
           onDelete={handleDeletePhoto}
           babyId={babyId}
+          isDeleting={fetcher.state !== "idle"}
         />
       )}
     </div>

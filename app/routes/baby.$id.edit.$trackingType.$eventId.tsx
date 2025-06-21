@@ -2,6 +2,7 @@ import {
   LoaderFunctionArgs,
   ActionFunctionArgs,
   redirect,
+  json,
 } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import { TrackingModal } from "~/components/tracking/TrackingModal";
@@ -11,18 +12,15 @@ import {
   getElimination,
   getFeeding,
   getSleep,
-  getPhoto,
   editElimination,
   editFeeding,
   editSleep,
-  editPhoto,
   type EliminationUpdateData,
   type FeedingUpdateData,
   type SleepUpdateData,
-  type PhotoUpdateData,
 } from "~/.server/tracking";
 import { t } from "~/src/utils/translate";
-import { Baby, BabyCaregiver } from "prisma/generated/client";
+import type { Baby, BabyCaregiver, PrismaClient } from "@prisma/client";
 import React, { useState } from "react";
 
 type FieldType = "text" | "number" | "select" | "textarea" | "datetime-local";
@@ -131,13 +129,6 @@ const TRACKING_FIELDS: Record<string, Field[]> = {
     { id: "quality", label: t("tracking.sleep.quality"), type: "number" },
     { id: "notes", label: t("tracking.sleep.notes"), type: "textarea" },
   ],
-  photo: [
-    {
-      id: "caption",
-      label: t("tracking.photo.caption"),
-      type: "text" as const,
-    },
-  ],
 };
 
 type LoaderData = {
@@ -159,14 +150,14 @@ type LoaderData = {
     how?: string | null;
     whereFellAsleep?: string | null;
     whereSlept?: string | null;
-    url?: string | null;
-    caption?: string | null;
-    takenOn?: string | null;
-    takenAt?: string | null;
   };
 };
 
-export async function loader({ params, request, context }: LoaderFunctionArgs) {
+export async function loader({
+  params,
+  request,
+  context,
+}: LoaderFunctionArgs & { context: { prisma: PrismaClient } }) {
   const { prisma } = context;
   const userId = await requireUserId(request);
   const baby = await getBaby(prisma, Number(params.id));
@@ -200,21 +191,18 @@ export async function loader({ params, request, context }: LoaderFunctionArgs) {
     case "sleep":
       event = await getSleep(prisma, request, eventId);
       break;
-    case "photo":
-      event = await getPhoto(prisma, request, eventId);
-      break;
   }
 
   if (!event) return redirect(`/baby/${params.id}`);
 
-  return new Response(JSON.stringify({ baby, event, trackingType }), {
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
+  return json({ baby, event, trackingType });
 }
 
-export async function action({ request, params, context }: ActionFunctionArgs) {
+export async function action({
+  request,
+  params,
+  context,
+}: ActionFunctionArgs & { context: { prisma: PrismaClient } }) {
   const { prisma } = context;
   const userId = await requireUserId(request);
   const baby = await getBaby(prisma, Number(params.id));
@@ -281,20 +269,6 @@ export async function action({ request, params, context }: ActionFunctionArgs) {
       await editSleep(prisma, request, eventId, data);
       break;
     }
-    case "photo": {
-      const data: PhotoUpdateData = {
-        url: rawData.url?.toString() ?? null,
-        caption: rawData.caption?.toString() ?? null,
-        takenOn: rawData.takenOn
-          ? new Date(rawData.takenOn.toString())
-          : undefined,
-        takenAt: rawData.takenAt
-          ? new Date(rawData.takenAt.toString())
-          : undefined,
-      };
-      await editPhoto(prisma, request, eventId, data);
-      break;
-    }
   }
 
   return redirect(`/baby/${params.id}`);
@@ -349,18 +323,6 @@ export default function EditTracking() {
         whereSlept: event.whereSlept ?? null,
         quality: event.quality ?? null,
         notes: event.notes ?? null,
-      };
-      break;
-    case "photo":
-      defaultValues = {
-        url: event.url ?? null,
-        caption: event.caption ?? null,
-        takenOn: event.takenOn
-          ? new Date(event.takenOn).toISOString().slice(0, 16)
-          : null,
-        takenAt: event.takenAt
-          ? new Date(event.takenAt).toISOString().slice(0, 16)
-          : null,
       };
       break;
   }

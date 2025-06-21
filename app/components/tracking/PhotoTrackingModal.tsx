@@ -1,5 +1,5 @@
-import { Form, useNavigate } from "@remix-run/react";
-import { XIcon } from "lucide-react";
+import { Form, useNavigate, useNavigation } from "@remix-run/react";
+import { Loader2, XIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { t } from "~/src/utils/translate";
 import { PhotoUploadField } from "./PhotoUploadField";
@@ -11,7 +11,10 @@ interface PhotoTrackingModalProps {
 
 export function PhotoTrackingModal({ babyId, error }: PhotoTrackingModalProps) {
   const navigate = useNavigate();
+  const navigation = useNavigation();
   const [photoFile, setPhotoFile] = useState<File | null>(null);
+
+  const isSubmitting = navigation.state === "submitting";
 
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
@@ -83,8 +86,10 @@ export function PhotoTrackingModal({ babyId, error }: PhotoTrackingModalProps) {
             </button>
             <button
               type="submit"
-              className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+              disabled={isSubmitting || !photoFile}
+              className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:bg-blue-400 disabled:cursor-not-allowed flex items-center gap-2"
             >
+              {isSubmitting && <Loader2 className="w-4 h-4 animate-spin" />}
               {t("modal.actions.save")}
             </button>
           </div>
