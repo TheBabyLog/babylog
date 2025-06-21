@@ -31,6 +31,10 @@ export function TrackingSection({
   trackingType,
   renderEventDetails,
 }: TrackingSectionProps) {
+  const getTranslatedType = (type: string) => {
+    return t(`tracking.${trackingType}.types.${type}`);
+  };
+
   return (
     <div className="bg-white shadow rounded-lg p-6">
       <div className="flex justify-between items-center mb-4">
@@ -63,7 +67,7 @@ export function TrackingSection({
                 <div className="flex-1">
                   <div className="flex justify-between">
                     <span className="font-medium text-gray-500">
-                      {event.type}
+                      {getTranslatedType(event.type)}
                     </span>
                     <span className="text-gray-500">
                       {new Date(

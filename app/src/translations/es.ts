@@ -95,6 +95,8 @@ export const es: TranslationKeys = {
       },
     },
     photo: {
+      title: "Foto",
+      upload: "Subir Foto",
       uploaded: 'Subido el',
       caption: 'Título',
       captionPlaceholder: 'Agregar un título...',
@@ -180,7 +182,7 @@ export const es: TranslationKeys = {
       back: "Cancelar",
       confirm: "Confirmar",
     },
-    close: "cerrar",
+    close: "Cerrar",
   },
   settings: {
     language: "Idioma",
@@ -191,6 +193,15 @@ export const es: TranslationKeys = {
     edit: 'Editar',
     delete: 'Eliminar',
     deleteConfirmation: '¿Estás seguro de querer eliminar esta foto?',
+  },
+  form: {
+    errors: {
+      required: "Por favor, completa este campo.",
+      noFileSelected: "No has seleccionado ninguna foto.",
+      invalidFileType: "Formato de archivo no válido.",
+      fileTooLarge: "El archivo es demasiado grande. Tamaño máximo 5MB.",
+      uploadFailed: "Error al subir la foto. Por favor intenta de nuevo.",
+    },
   },
   // Add more translation categories as needed
 };

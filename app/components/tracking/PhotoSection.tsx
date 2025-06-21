@@ -45,12 +45,6 @@ export function PhotoSection({
   );
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // Debug logging
-  useEffect(() => {
-    console.log("Photos received:", photos);
-    console.log("Photos length:", photos.length);
-  }, [photos]);
-
   const toggleSort = () => {
     setCurrentSort((prev) => ({
       ...prev,
