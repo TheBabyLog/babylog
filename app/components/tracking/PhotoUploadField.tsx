@@ -129,7 +129,7 @@ export function PhotoUploadField({
             <img
               src={previewUrl}
               alt="Preview"
-              className="max-w-xs mx-auto rounded-lg shadow-md"
+              className="w-full h-auto object-contain max-h-60 mx-auto rounded-lg shadow-md"
             />
           </div>
         )}
