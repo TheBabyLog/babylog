@@ -10,6 +10,14 @@ export const es: TranslationKeys = {
     logout: "Cerrar sesión",
     born: "Nacido",
   },
+  global: {
+    time: {
+      today: "Hoy",
+      yesterday: "Ayer",
+      daysAgo: "Hace {{count}} días",
+      lastWeek: "La semana pasada",
+    },
+  },
   auth: {
     login: "Iniciar sesión",
     signup: "Registrarse",
