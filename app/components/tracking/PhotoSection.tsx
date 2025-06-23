@@ -115,7 +115,7 @@ export function PhotoSection({
           </Link>
           <Link
             to={`/baby/${babyId}/photos`}
-            className="text-blue-500 hover:underline text-sm"
+            className="text-blue-500 hover:underline"
           >
             {t("baby.recent.viewAll")}
           </Link>

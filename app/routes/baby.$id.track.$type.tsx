@@ -72,18 +72,6 @@ function getTrackingConfig(type: TrackingType) {
       title: t("tracking.feeding.title"),
       fields: [
         {
-          id: "startTime",
-          label: t("tracking.feeding.startTime"),
-          type: "datetime-local" as const,
-          required: true,
-        },
-        {
-          id: "endTime",
-          label: t("tracking.feeding.endTime"),
-          type: "datetime-local" as const,
-          required: false,
-        },
-        {
           id: "type",
           label: t("tracking.type"),
           type: "select" as const,
@@ -113,6 +101,18 @@ function getTrackingConfig(type: TrackingType) {
           id: "food",
           label: t("tracking.feeding.food"),
           type: "text" as const,
+        },
+        {
+          id: "startTime",
+          label: t("tracking.feeding.startTime"),
+          type: "datetime-local" as const,
+          required: true,
+        },
+        {
+          id: "endTime",
+          label: t("tracking.feeding.endTime"),
+          type: "datetime-local" as const,
+          required: false,
         },
         {
           id: "notes",
