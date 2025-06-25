@@ -1,4 +1,4 @@
-import { PrismaClient } from "@prisma/client/edge";
+import { ExtendedPrismaClient } from "../db.server";
 import bcrypt from "bcryptjs";
 
 const SALT_ROUNDS = 10;
@@ -15,7 +15,7 @@ export async function verifyPassword(
 }
 
 export async function verifyLogin(
-  prisma: PrismaClient,
+  prisma: ExtendedPrismaClient,
   email: string,
   password: string
 ) {

@@ -19,7 +19,13 @@ import React, { useState } from "react";
 
 type TrackingType = "elimination" | "feeding" | "sleep" | "photo";
 
-type FieldType = "text" | "number" | "select" | "textarea" | "datetime-local";
+type FieldType =
+  | "text"
+  | "number"
+  | "select"
+  | "textarea"
+  | "datetime-local"
+  | "file";
 interface Field {
   id: string;
   label: string;
@@ -235,12 +241,7 @@ export async function loader({ request, params, context }: LoaderFunctionArgs) {
     return redirect(`/baby/${params.id}`);
   }
 
-  return new Response(
-    JSON.stringify({ baby, trackingConfig: getTrackingConfig(type) }),
-    {
-      headers: { "Content-Type": "application/json" },
-    }
-  );
+  return { baby, trackingConfig: getTrackingConfig(type) };
 }
 
 export async function action({ request, params, context }: ActionFunctionArgs) {
@@ -270,7 +271,7 @@ export async function action({ request, params, context }: ActionFunctionArgs) {
         ...baseData,
         startTime: formData.get("startTime")
           ? new Date(formData.get("startTime") as string)
-          : null,
+          : timestamp,
         endTime: formData.get("endTime")
           ? new Date(formData.get("endTime") as string)
           : null,

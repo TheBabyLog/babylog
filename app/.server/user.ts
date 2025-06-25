@@ -1,4 +1,4 @@
-import { PrismaClient } from "@prisma/client";
+import { ExtendedPrismaClient } from "../db.server";
 import { hashPassword } from "~/.server/auth";
 
 export type UserSignupData = {
@@ -9,7 +9,7 @@ export type UserSignupData = {
   phone?: string;
 };
 
-export async function createUser(prisma: PrismaClient, data: UserSignupData) {
+export async function createUser(prisma: ExtendedPrismaClient, data: UserSignupData) {
   const passwordHash = await hashPassword(data.password);
   return prisma.user.create({
     data: {

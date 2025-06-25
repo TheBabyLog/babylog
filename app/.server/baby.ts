@@ -1,9 +1,9 @@
 import { Baby } from "prisma/generated/client";
 import { requireUserId } from "./session";
-import { PrismaClient } from "@prisma/client/edge";
+import { ExtendedPrismaClient } from "../db.server";
 
 export async function createBaby(
-  prisma: PrismaClient,
+  prisma: ExtendedPrismaClient,
   ownerId: number,
   data: Pick<Baby, "firstName" | "lastName" | "dateOfBirth" | "gender">
 ) {
@@ -41,7 +41,7 @@ export async function createBaby(
 }
 
 export async function getBaby(
-  prisma: PrismaClient,
+  prisma: ExtendedPrismaClient,
   id: number,
   options?: {
     include?: {
@@ -68,7 +68,7 @@ export async function getBaby(
   });
 }
 
-export async function getUserBabies(prisma: PrismaClient, userId: number) {
+export async function getUserBabies(prisma: ExtendedPrismaClient, userId: number) {
   return prisma.baby.findMany({
     where: {
       OR: [
@@ -87,7 +87,7 @@ export async function getUserBabies(prisma: PrismaClient, userId: number) {
 }
 
 export async function inviteNewParent(
-  prisma: PrismaClient,
+  prisma: ExtendedPrismaClient,
   babyId: number,
   email: string,
   senderId: number
@@ -105,7 +105,7 @@ export async function inviteNewParent(
 // This function handles the creation of a new baby and optionally populates 'parentInvite'
 export async function handleBabyCreation(
   request: Request,
-  prisma: PrismaClient
+  prisma: ExtendedPrismaClient
 ) {
   const userId = await requireUserId(request);
   const formData = await request.formData();
