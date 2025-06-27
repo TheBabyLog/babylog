@@ -12,6 +12,10 @@ type MockPrismaClient = {
     create: MockFunction;
     findUnique: MockFunction;
   };
+  $accelerate: {
+    invalidate: MockFunction;
+    invalidateAll: MockFunction;
+  };
 };
 
 // Create mock prisma client with proper typing
@@ -19,6 +23,10 @@ const mockPrisma: MockPrismaClient = {
   user: {
     create: vi.fn(),
     findUnique: vi.fn(),
+  },
+  $accelerate: {
+    invalidate: vi.fn(),
+    invalidateAll: vi.fn(),
   },
 };
 
@@ -49,7 +57,7 @@ describe("user service", () => {
     vi.mocked(hashPassword).mockResolvedValueOnce("hashedPassword123");
     mockPrisma.user.create.mockResolvedValueOnce(mockUser);
 
-    const result = await createUser(mockPrisma as unknown as PrismaClient, {
+    const result = await createUser(mockPrisma as any, {
       email: "test@example.com",
       password: "password123",
       firstName: "John",
@@ -99,7 +107,7 @@ describe("user service", () => {
     );
 
     const result = await verifyLogin(
-      mockPrisma as unknown as PrismaClient,
+      mockPrisma as any,
       "test@example.com",
       "password123"
     );
@@ -156,7 +164,7 @@ describe("user service", () => {
     );
 
     const result = await verifyLogin(
-      mockPrisma as unknown as PrismaClient,
+      mockPrisma as any,
       "nonexistent@example.com",
       "password123"
     );

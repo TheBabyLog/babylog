@@ -6,10 +6,11 @@ import { t } from "../../src/utils/translate";
 interface Field {
   id: string;
   label: string;
-  type: "text" | "number" | "select" | "textarea" | "datetime-local";
+  type: "text" | "number" | "select" | "textarea" | "datetime-local" | "file";
   options?: { value: string; label: string }[];
   required?: boolean;
   placeholder?: string;
+  accept?: string;
   defaultValue?: string | number | null;
   onChange?: (e: React.ChangeEvent<any>) => void;
 }
@@ -112,6 +113,19 @@ export function TrackingModal({ babyId, title, fields }: TrackingModalProps) {
             defaultValue={field.defaultValue || ""}
             min={0}
             step="any"
+            onInvalid={handleInvalid}
+            onInput={handleInput}
+          />
+        );
+      case "file":
+        return (
+          <input
+            id={field.id}
+            name={field.id}
+            type="file"
+            className="w-full p-2 border rounded bg-black text-white"
+            required={field.required}
+            accept={field.accept}
             onInvalid={handleInvalid}
             onInput={handleInput}
           />
