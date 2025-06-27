@@ -65,9 +65,12 @@ describe("getPrismaClient", () => {
     getPrismaClient(testUrl);
 
     // Check that PrismaClient was constructed with the right options
-    expect(PrismaClient).toHaveBeenCalledWith({
-      datasourceUrl: testUrl,
-    });
+    expect(PrismaClient).toHaveBeenCalledWith(
+      expect.objectContaining({
+        datasourceUrl: testUrl,
+        log: ["error"],
+      })
+    );
 
     // Check that withAccelerate was called
     expect(withAccelerate).toHaveBeenCalled();

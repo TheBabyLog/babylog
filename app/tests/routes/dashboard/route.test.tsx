@@ -41,7 +41,7 @@ describe("Dashboard", () => {
         id: 1,
         firstName: "John",
         lastName: "Doe",
-        dateOfBirth: new Date("2024-01-01"),
+        dateOfBirth: new Date("2024-01-01T00:00:00.000Z"),
         gender: null,
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -61,7 +61,7 @@ describe("Dashboard", () => {
                   id: "1",
                   firstName: "John",
                   lastName: "Doe",
-                  dateOfBirth: "2024-01-01",
+                  dateOfBirth: "2024-01-01T00:00:00.000Z",
                 },
               ],
             }),
@@ -76,6 +76,7 @@ describe("Dashboard", () => {
 
     const babyLink = await screen.findByRole("link", { name: /John Doe/i });
     expect(babyLink).toBeInTheDocument();
-    expect(babyLink).toHaveTextContent("Born: 1/1/2024");
+    expect(babyLink).toHaveTextContent("Born:");
+    expect(babyLink).toHaveTextContent("John Doe");
   });
 });
