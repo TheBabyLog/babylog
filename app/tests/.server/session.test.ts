@@ -25,7 +25,7 @@ describe('session service', () => {
     
     try {
       await requireUserId(mockRequest);
-      fail('Should have thrown redirect');
+      expect.fail('Should have thrown redirect');
     } catch (error) {
       const response = error as Response;
       expect(response.status).toBe(302);

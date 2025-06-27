@@ -17,6 +17,10 @@ type MockPrismaClient = {
     create: MockFunction;
     delete: MockFunction;
   };
+  $accelerate: {
+    invalidate: MockFunction;
+    invalidateAll: MockFunction;
+  };
 };
 
 // Create the mock Prisma client
@@ -24,6 +28,10 @@ const mockPrisma: MockPrismaClient = {
   babyCaregiver: {
     create: vi.fn(),
     delete: vi.fn(),
+  },
+  $accelerate: {
+    invalidate: vi.fn(),
+    invalidateAll: vi.fn(),
   },
 };
 
@@ -54,7 +62,7 @@ describe("caregiver service", () => {
 
     // Call the function with all required parameters
     const result = await addCaregiver(
-      mockPrisma as unknown as PrismaClient,
+      mockPrisma as any,
       mockRequest,
       1,
       2,
@@ -98,7 +106,7 @@ describe("caregiver service", () => {
 
     // Call the function
     const result = await removeCaregiver(
-      mockPrisma as unknown as PrismaClient,
+      mockPrisma as any,
       mockRequest,
       1,
       2

@@ -11,8 +11,14 @@ import { LanguageSelector } from "~/components/LanguageSelector";
 import { TrackingSection } from "~/components/tracking/TrackingSection";
 import { PhotoSection } from "~/components/tracking/PhotoSection";
 
-interface Caregiver {
+interface BabyCaregiver {
+  id: number;
+  createdAt: Date;
+  updatedAt: Date;
+  relationship: string;
+  permissions: string[];
   userId: number;
+  babyId: number;
   user: {
     firstName: string;
     lastName: string;
@@ -28,7 +34,7 @@ interface Baby {
   createdAt: Date;
   updatedAt: Date;
   ownerId: number;
-  caregivers: Caregiver[];
+  caregivers: BabyCaregiver[];
 }
 
 export async function loader({ request, params, context }: LoaderFunctionArgs) {
@@ -52,8 +58,7 @@ export async function loader({ request, params, context }: LoaderFunctionArgs) {
   if (!baby) return redirect("/dashboard");
 
   const isAuthorized =
-    baby.ownerId === userId ||
-    (baby as Baby).caregivers.some((c: Caregiver) => c.userId === userId);
+    baby.ownerId === userId || baby.caregivers.some((c) => c.userId === userId);
 
   if (!isAuthorized) return redirect("/dashboard");
 
@@ -68,8 +73,10 @@ export default function BabyDetails() {
     useLoaderData<typeof loader>();
   const [showCaregiverModal, setShowCaregiverModal] = useState(false);
 
-  const caregivers = (baby as Baby).caregivers
-    .map((c: Caregiver) => `${c.user.firstName} ${c.user.lastName}`)
+  // Type assertion to ensure TypeScript knows the baby has caregivers with user data
+  const babyWithCaregivers = baby as Baby;
+  const caregivers = babyWithCaregivers.caregivers
+    .map((c) => `${c.user.firstName} ${c.user.lastName}`)
     .join(", ");
 
   return (

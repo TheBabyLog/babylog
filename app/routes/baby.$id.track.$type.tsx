@@ -313,7 +313,7 @@ export default function TrackEvent() {
     string | undefined
   >(type === "feeding" ? undefined : undefined);
 
-  let fieldsToShow = config.fields;
+  let fieldsToShow: Field[] = config.fields;
   if (type === "feeding") {
     // Default to first option if not set
     const currentType = selectedFeedingType || "breast";
