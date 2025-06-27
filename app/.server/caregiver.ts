@@ -1,8 +1,8 @@
 import { requireUserId } from "./session";
-import { PrismaClient } from "@prisma/client/edge";
+import { ExtendedPrismaClient } from "../db.server";
 
 export async function addCaregiver(
-  prisma: PrismaClient,
+  prisma: ExtendedPrismaClient,
   request: Request,
   babyId: number,
   userId: number,
@@ -21,7 +21,7 @@ export async function addCaregiver(
 }
 
 export async function removeCaregiver(
-  prisma: PrismaClient,
+  prisma: ExtendedPrismaClient,
   request: Request,
   babyId: number,
   userId: number
@@ -38,7 +38,7 @@ export async function removeCaregiver(
 }
 
 export async function addBabyOwner(
-  prisma: PrismaClient,
+  prisma: ExtendedPrismaClient,
   request: Request,
   babyId: number,
   userId: number
@@ -51,7 +51,7 @@ export async function addBabyOwner(
 }
 
 export async function inviteNewCaregiver(
-  prisma: PrismaClient,
+  prisma: ExtendedPrismaClient,
   request: Request,
   babyId: number,
   email: string,

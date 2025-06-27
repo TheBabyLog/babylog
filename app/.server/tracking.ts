@@ -1,4 +1,4 @@
-import { PrismaClient } from "@prisma/client/edge";
+import { ExtendedPrismaClient } from "../db.server";
 import { requireUserId } from "./session";
 import { createDownloadUrl, deleteFromS3 } from "./s3_auth";
 
@@ -80,7 +80,7 @@ export interface PhotoUpdateData {
 }
 
 export async function trackElimination(
-  prisma: any,
+  prisma: ExtendedPrismaClient,
   request: Request,
   data: EliminationData
 ) {
@@ -94,7 +94,7 @@ export async function trackElimination(
 }
 
 export async function trackFeeding(
-  prisma: any,
+  prisma: ExtendedPrismaClient,
   request: Request,
   data: FeedingData
 ) {
@@ -105,7 +105,7 @@ export async function trackFeeding(
 }
 
 export async function trackSleep(
-  prisma: any,
+  prisma: ExtendedPrismaClient,
   request: Request,
   data: SleepData
 ) {
@@ -116,7 +116,7 @@ export async function trackSleep(
 }
 
 export async function trackPhoto(
-  prisma: any,
+  prisma: ExtendedPrismaClient,
   request: Request,
   data: PhotoData
 ) {
@@ -140,7 +140,7 @@ export async function trackPhoto(
 }
 
 export async function editElimination(
-  prisma: PrismaClient,
+  prisma: ExtendedPrismaClient,
   request: Request,
   id: number,
   data: EliminationUpdateData
@@ -153,7 +153,7 @@ export async function editElimination(
 }
 
 export async function editFeeding(
-  prisma: any,
+  prisma: ExtendedPrismaClient,
   request: Request,
   id: number,
   data: FeedingUpdateData
@@ -166,7 +166,7 @@ export async function editFeeding(
 }
 
 export async function editSleep(
-  prisma: any,
+  prisma: ExtendedPrismaClient,
   request: Request,
   id: number,
   data: SleepUpdateData
@@ -179,7 +179,7 @@ export async function editSleep(
 }
 
 export async function editPhoto(
-  prisma: any,
+  prisma: ExtendedPrismaClient,
   request: Request,
   id: number,
   data: PhotoUpdateData
@@ -192,7 +192,7 @@ export async function editPhoto(
 }
 
 export async function deletePhoto(
-  prisma: any,
+  prisma: ExtendedPrismaClient,
   request: Request,
   id: number
 ) {
@@ -223,7 +223,7 @@ export async function deletePhoto(
 }
 
 export async function getRecentTrackingEvents(
-  prisma: any,
+  prisma: ExtendedPrismaClient,
   request: Request,
   babyId: number,
   limit: number = 5
@@ -287,7 +287,7 @@ export async function getRecentTrackingEvents(
 }
 
 export async function getElimination(
-  prisma: any,
+  prisma: ExtendedPrismaClient,
   request: Request,
   id: number
 ) {
@@ -298,7 +298,7 @@ export async function getElimination(
 }
 
 export async function getFeeding(
-  prisma: any,
+  prisma: ExtendedPrismaClient,
   request: Request,
   id: number
 ) {
@@ -309,7 +309,7 @@ export async function getFeeding(
 }
 
 export async function getSleep(
-  prisma: any,
+  prisma: ExtendedPrismaClient,
   request: Request,
   id: number
 ) {
@@ -320,7 +320,7 @@ export async function getSleep(
 }
 
 export async function getPhoto(
-  prisma: any,
+  prisma: ExtendedPrismaClient,
   request: Request,
   id: number
 ) {

@@ -74,17 +74,6 @@ const TRACKING_FIELDS: Record<string, Field[]> = {
       required: true,
     },
     {
-      id: "startTime",
-      label: t("tracking.feeding.startTime"),
-      type: "datetime-local",
-      required: true,
-    },
-    {
-      id: "endTime",
-      label: t("tracking.feeding.endTime"),
-      type: "datetime-local",
-    },
-    {
       id: "side",
       label: t("tracking.feeding.side"),
       type: "select",
@@ -95,6 +84,17 @@ const TRACKING_FIELDS: Record<string, Field[]> = {
     },
     { id: "amount", label: t("tracking.feeding.amount"), type: "number" },
     { id: "food", label: t("tracking.feeding.food"), type: "text" },
+    {
+      id: "startTime",
+      label: t("tracking.feeding.startTime"),
+      type: "datetime-local",
+      required: true,
+    },
+    {
+      id: "endTime",
+      label: t("tracking.feeding.endTime"),
+      type: "datetime-local",
+    },
     { id: "notes", label: t("tracking.feeding.notes"), type: "textarea" },
   ],
   sleep: [

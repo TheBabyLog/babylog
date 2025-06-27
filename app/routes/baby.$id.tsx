@@ -123,13 +123,6 @@ export default function BabyDetails() {
               events={feedings}
               babyId={baby.id}
               trackingType="feeding"
-              renderEventDetails={(event) =>
-                event.amount && (
-                  <div className="text-sm text-gray-600">
-                    {t("baby.details.amount")}: {event.amount}ml
-                  </div>
-                )
-              }
             />
 
             <TrackingSection

@@ -8,6 +8,14 @@ export const en = {
     logout: "Logout",
     born: "Born",
   },
+  global: {
+    time: {
+      today: "Today",
+      yesterday: "Yesterday",
+      daysAgo: "{{count}} days ago",
+      lastWeek: "Last week",
+    },
+  },
   auth: {
     login: "Login",
     signup: "Sign Up",
