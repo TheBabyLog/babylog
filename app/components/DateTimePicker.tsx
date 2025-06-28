@@ -185,7 +185,7 @@ export function DateTimePicker({
       className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40"
     >
       <div
-        className="bg-neutral-800 shadow-lg w-full max-w-xs sm:max-w-md rounded-lg border-2 border-neutral-600 animate-fade-in py-4 px-4 max-h-[90vh] overflow-y-auto flex flex-col"
+        className="bg-gray-700 shadow-lg w-full max-w-xs sm:max-w-md rounded-lg border-2 border-neutral-600 animate-fade-in py-4 px-4 max-h-[90vh] overflow-y-auto flex flex-col"
         style={{ maxHeight: "90vh" }}
       >
         {/* Selected Date Label */}
@@ -214,7 +214,7 @@ export function DateTimePicker({
               caption_label: "text-sm font-medium",
               nav: "space-x-1 flex items-center",
               nav_button:
-                "h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100",
+                "h-7 w-7 bg-white p-0 opacity-80 hover:opacity-100 border border-gray-300 shadow-sm",
               nav_button_previous: "absolute left-1",
               nav_button_next: "absolute right-1",
               table: "w-full border-collapse space-y-1",
@@ -275,7 +275,7 @@ export function DateTimePicker({
         )}
 
         {/* Sticky button row */}
-        <div className="flex justify-end gap-2 pt-2 bg-neutral-800 sticky bottom-0 z-10">
+        <div className="flex justify-end gap-2 pt-2 bg-gray-700 sticky bottom-0 z-10">
           <button
             type="button"
             onClick={handleCancel}
