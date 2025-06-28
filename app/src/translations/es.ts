@@ -209,7 +209,21 @@ export const es: TranslationKeys = {
       invalidFileType: "Formato de archivo no válido.",
       fileTooLarge: "El archivo es demasiado grande. Tamaño máximo 5MB.",
       uploadFailed: "Error al subir la foto. Por favor intenta de nuevo.",
+      invalidHour: "Por favor ingresa una hora válida (0-23)",
+      invalidMinute: "Por favor ingresa un minuto válido (0-59)",
+    },
+    datePicker: {
+      placeholder: "Selecciona fecha y hora",
+      confirm: "Confirmar",
+      close: "Cerrar",
+      today: "Hoy",
+      month: "Mes",
+      year: "Año",
+      hour: "Hora",
+      minute: "Minuto",
+      am: "AM",
+      pm: "PM",
+      selected: "Seleccionado"
     },
   },
-  // Add more translation categories as needed
 };

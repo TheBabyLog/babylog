@@ -42,10 +42,12 @@
     "@remix-run/react": "2.16.4",
     "@remix-run/server-runtime": "2.16.4",
     "bcryptjs": "^3.0.2",
+    "date-fns": "^4.1.0",
     "estree-util-value-to-estree": "^3.3.3",
     "isbot": "5.1.25",
     "lucide-react": "^0.503.0",
     "react": "18.3.1",
+    "react-day-picker": "^9.7.0",
     "react-dom": "18.3.1"
   },
   "devDependencies": {
@@ -74,7 +76,7 @@
     "tailwindcss": "3.4.17",
     "tsx": "^4.19.4",
     "typescript": "5.8.2",
-    "vite": "5.4.14",
+    "vite": "^5.4.19",
     "vite-tsconfig-paths": "5.1.4",
     "vitest": "^3.1.2",
     "wrangler": "^3.114.7"
