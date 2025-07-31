@@ -206,6 +206,21 @@ export const en = {
       invalidFileType: "Invalid file format.",
       fileTooLarge: "File is too large. Maximum size is 5MB.",
       uploadFailed: "Failed to upload photo. Please try again.",
+      invalidHour: "Please enter a valid hour (0-23)",
+      invalidMinute: "Please enter a valid minute (0-59)",
+    },
+    datePicker: {
+      placeholder: "Select date and time",
+      confirm: "Confirm",
+      close: "Close",
+      today: "Today",
+      month: "Month",
+      year: "Year",
+      hour: "Hour",
+      minute: "Minute",
+      am: "AM",
+      pm: "PM",
+      selected: "Selected"
     },
   },
   // Add more translation categories as needed

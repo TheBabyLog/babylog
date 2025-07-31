@@ -1,7 +1,11 @@
 import { Form, useNavigate } from "@remix-run/react";
 import { XIcon } from "lucide-react";
-import { useEffect } from "react";
-import { t } from "../../src/utils/translate";
+import { useEffect, useState } from "react";
+import { t, getCurrentLanguage } from "../../src/utils/translate";
+import { DateTimePicker } from "../DateTimePicker";
+import { format, isValid, parse } from "date-fns";
+import { enUS } from "date-fns/locale/en-US";
+import { es } from "date-fns/locale/es";
 
 interface Field {
   id: string;
@@ -53,6 +57,8 @@ export function TrackingModal({ babyId, title, fields }: TrackingModalProps) {
   ) => {
     e.currentTarget.setCustomValidity("");
   };
+
+  const locales = { en: enUS, es };
 
   const renderField = (field: Field) => {
     switch (field.type) {
@@ -150,27 +156,73 @@ export function TrackingModal({ babyId, title, fields }: TrackingModalProps) {
         </div>
 
         <Form method="post" encType="application/x-www-form-urlencoded">
-          {fields.map((field) => (
-            <div key={field.id} className="mb-4">
-              <label htmlFor={field.id} className={labelClasses}>
-                {field.label}
-              </label>
-              {field.type === "datetime-local" ? (
-                <input
-                  id={`field.${field.id}`}
-                  type="datetime-local"
-                  name={field.id}
-                  defaultValue={field.defaultValue || ""}
-                  className={inputClasses}
-                  required={field.required}
-                  onInvalid={handleInvalid}
-                  onInput={handleInput}
-                />
-              ) : (
-                renderField(field)
-              )}
-            </div>
-          ))}
+          {fields.map((field) => {
+            if (field.type === "datetime-local") {
+              const getLocalNow = () => {
+                return format(new Date(), "yyyy-MM-dd'T'HH:mm");
+              };
+              const [dateValue, setDateValue] = useState(
+                typeof field.defaultValue === "string" && field.defaultValue
+                  ? field.defaultValue
+                  : getLocalNow()
+              );
+              const [pickerOpen, setPickerOpen] = useState(false);
+              const lang = getCurrentLanguage() as "en" | "es";
+              const locale = locales[lang] || enUS;
+              const parsedDate =
+                dateValue &&
+                isValid(parse(dateValue, "yyyy-MM-dd'T'HH:mm", new Date()))
+                  ? parse(dateValue, "yyyy-MM-dd'T'HH:mm", new Date())
+                  : null;
+              const displayValue = parsedDate
+                ? format(parsedDate, "P HH:mm", { locale })
+                : t("form.datePicker.placeholder");
+              return (
+                <div key={field.id} className="mb-4">
+                  <label htmlFor={field.id} className={labelClasses}>
+                    {field.label}
+                  </label>
+                  <button
+                    type="button"
+                    className="w-full p-2 border rounded bg-black text-white text-left mb-2"
+                    onClick={() => setPickerOpen(true)}
+                    id={field.id}
+                  >
+                    {displayValue}
+                  </button>
+                  <DateTimePicker
+                    value={dateValue}
+                    onChange={(val) => {
+                      setDateValue(val);
+                      setPickerOpen(false);
+                      const hiddenInput = document.getElementById(
+                        `field-hidden-${field.id}`
+                      ) as HTMLInputElement;
+                      if (hiddenInput) hiddenInput.value = val;
+                    }}
+                    required={field.required}
+                    locale={lang}
+                    open={pickerOpen}
+                    onClose={() => setPickerOpen(false)}
+                  />
+                  <input
+                    id={`field-hidden-${field.id}`}
+                    type="hidden"
+                    name={field.id}
+                    value={dateValue}
+                  />
+                </div>
+              );
+            }
+            return (
+              <div key={field.id} className="mb-4">
+                <label htmlFor={field.id} className={labelClasses}>
+                  {field.label}
+                </label>
+                {renderField(field)}
+              </div>
+            );
+          })}
 
           <div className="flex justify-end gap-2">
             <button
