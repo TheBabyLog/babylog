@@ -11,6 +11,7 @@ import {
 } from "@remix-run/react";
 import type { LinksFunction, LoaderFunctionArgs } from "@remix-run/node";
 import { getCurrentLanguage, setLanguage } from "~/src/utils/translate";
+import { LanguageSelector } from "~/components/LanguageSelector";
 import { useEffect } from "react";
 
 import "./tailwind.css";
@@ -68,7 +69,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
       <body className="bg-gray-900 text-white">
         {!isLoginPage && (
           <header className="fixed top-0 left-0 w-full bg-blue shadow-sm z-10">
-            <div className="max-w-7xl mx-auto px-4 py-2 flex items-center">
+            <div className="max-w-7xl mx-auto px-4 py-2 flex items-center justify-between">
               <Link
                 to="/dashboard"
                 className="flex items-center justify-center p-2 rounded-full hover:bg-blue transition-colors text-white"
@@ -88,6 +89,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
                   <polyline points="9 22 9 12 15 12 15 22"></polyline>
                 </svg>
               </Link>
+              <div className="flex items-center">
+                <LanguageSelector />
+              </div>
             </div>
           </header>
         )}
