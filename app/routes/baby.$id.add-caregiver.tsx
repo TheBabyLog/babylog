@@ -17,12 +17,18 @@ export async function loader({ request }: LoaderFunctionArgs) {
 export async function action({ request, params, context }: ActionFunctionArgs) {
   const { prisma } = context;
   const userId = await requireUserId(request);
+
+  // Validate that we have a valid baby ID
+  if (!params.id || isNaN(Number(params.id))) {
+    return redirect("/dashboard");
+  }
+
   const formData = await request.formData();
   const babyId = Number(params.id);
   const email = formData.get("email") as string;
 
-  if (!email || !babyId) {
-    return json({ error: "Email and baby ID are required" }, { status: 400 });
+  if (!email) {
+    return json({ error: "Email is required" }, { status: 400 });
   }
 
   try {

@@ -39,6 +39,12 @@ interface Baby {
 export async function loader({ request, params, context }: LoaderFunctionArgs) {
   const { prisma } = context;
   const userId = await requireUserId(request);
+
+  // Validate that we have a valid baby ID
+  if (!params.id || isNaN(Number(params.id))) {
+    return redirect("/dashboard");
+  }
+
   const baby = await getBaby(prisma, Number(params.id), {
     include: {
       caregivers: {

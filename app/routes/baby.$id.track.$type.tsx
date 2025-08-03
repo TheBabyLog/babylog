@@ -225,6 +225,12 @@ function getTrackingConfig(type: TrackingType) {
 export async function loader({ request, params, context }: LoaderFunctionArgs) {
   const { prisma } = context;
   const userId = await requireUserId(request);
+
+  // Validate that we have a valid baby ID
+  if (!params.id || isNaN(Number(params.id))) {
+    return redirect("/dashboard");
+  }
+
   const baby = await getBaby(prisma, Number(params.id));
 
   if (!baby) return redirect("/dashboard");
@@ -246,6 +252,12 @@ export async function loader({ request, params, context }: LoaderFunctionArgs) {
 
 export async function action({ request, params, context }: ActionFunctionArgs) {
   const { prisma } = context;
+
+  // Validate that we have a valid baby ID
+  if (!params.id || isNaN(Number(params.id))) {
+    return redirect("/dashboard");
+  }
+
   const formData = await request.formData();
   const type = params.type as TrackingType;
   const babyId = Number(params.id);
