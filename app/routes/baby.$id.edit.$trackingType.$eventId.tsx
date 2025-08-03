@@ -160,6 +160,12 @@ export async function loader({
 }: LoaderFunctionArgs & { context: { prisma: PrismaClient } }) {
   const { prisma } = context;
   const userId = await requireUserId(request);
+
+  // Validate that we have a valid baby ID
+  if (!params.id || isNaN(Number(params.id))) {
+    return redirect("/dashboard");
+  }
+
   const baby = await getBaby(prisma, Number(params.id));
 
   if (!baby) return redirect("/dashboard");
@@ -205,6 +211,12 @@ export async function action({
 }: ActionFunctionArgs & { context: { prisma: PrismaClient } }) {
   const { prisma } = context;
   const userId = await requireUserId(request);
+
+  // Validate that we have a valid baby ID
+  if (!params.id || isNaN(Number(params.id))) {
+    return redirect("/dashboard");
+  }
+
   const baby = await getBaby(prisma, Number(params.id));
 
   if (!baby) return redirect("/dashboard");

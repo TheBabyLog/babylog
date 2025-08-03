@@ -1,9 +1,12 @@
-import { Link, useLoaderData, Form } from "@remix-run/react";
+import { Link, useLoaderData, Form, useActionData } from "@remix-run/react";
+import { redirect } from "@remix-run/node";
 import { requireUserId, logout } from "~/.server/session";
-import { getUserBabies } from "~/.server/baby";
+import { getUserBabies, handleBabyCreation } from "~/.server/baby";
 import type { LoaderFunctionArgs, ActionFunctionArgs } from "@remix-run/node";
 import { t } from "~/src/utils/translate";
 import type { Baby, PrismaClient } from "@prisma/client";
+import { AddBabyModal } from "~/components/AddBabyModal";
+import { useState } from "react";
 
 export async function loader({
   request,
@@ -15,7 +18,26 @@ export async function loader({
   return { babies };
 }
 
-export async function action({ request }: ActionFunctionArgs) {
+export async function action({ request, context }: ActionFunctionArgs) {
+  const { prisma } = context;
+  const formData = await request.formData();
+  const intent = formData.get("intent");
+
+  if (intent === "logout") {
+    return logout(request);
+  }
+
+  if (intent === "createBaby") {
+    const result = await handleBabyCreation(request, formData, prisma);
+
+    if ("error" in result) {
+      return result;
+    }
+
+    return redirect(`/baby/${result.baby.id}`);
+  }
+
+  // Default case
   if (request.method.toLowerCase() === "post") {
     return logout(request);
   }
@@ -23,6 +45,8 @@ export async function action({ request }: ActionFunctionArgs) {
 
 export default function Dashboard() {
   const { babies } = useLoaderData<typeof loader>();
+  const actionData = useActionData<typeof action>();
+  const [isAddBabyModalOpen, setIsAddBabyModalOpen] = useState(false);
 
   return (
     <div className="w-full min-h-screen p-4 sm:p-6">
@@ -31,13 +55,14 @@ export default function Dashboard() {
           {t("dashboard.title")}
         </h1>
         <div className="flex gap-3">
-          <Link
-            to="/baby/new"
+          <button
+            onClick={() => setIsAddBabyModalOpen(true)}
             className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
           >
             {t("dashboard.addBaby")}
-          </Link>
+          </button>
           <Form method="post">
+            <input type="hidden" name="intent" value="logout" />
             <button
               type="submit"
               className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
@@ -71,6 +96,12 @@ export default function Dashboard() {
           ))}
         </div>
       )}
+
+      <AddBabyModal
+        isOpen={isAddBabyModalOpen}
+        onClose={() => setIsAddBabyModalOpen(false)}
+        error={actionData?.error}
+      />
     </div>
   );
 }

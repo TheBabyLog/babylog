@@ -105,10 +105,10 @@ export async function inviteNewParent(
 // This function handles the creation of a new baby and optionally populates 'parentInvite'
 export async function handleBabyCreation(
   request: Request,
+  formData: FormData,
   prisma: ExtendedPrismaClient
 ) {
   const userId = await requireUserId(request);
-  const formData = await request.formData();
 
   const firstName = formData.get("firstName") as string;
   const lastName = formData.get("lastName") as string;
@@ -119,19 +119,38 @@ export async function handleBabyCreation(
   const inviteParent = formData.get("inviteParent") === "true";
   const parentEmail = (formData.get("parentEmail") as string) || null;
 
-  if (!firstName || !lastName || !dateOfBirth) {
-    return { error: "All fields are required" };
+  // Validate required fields
+  if (!firstName?.trim()) {
+    return { error: "First name is required" };
+  }
+  if (!lastName?.trim()) {
+    return { error: "Last name is required" };
+  }
+  if (!dateOfBirth?.trim()) {
+    return { error: "Date of birth is required" };
   }
 
-  // If inviting parent is selected but no email is provided
-  if (inviteParent && !parentEmail) {
-    return { error: "Parent email is required" };
+  // Validate date format and that it's not in the future
+  const birthDate = new Date(dateOfBirth);
+  if (isNaN(birthDate.getTime())) {
+    return { error: "Invalid date format" };
+  }
+  if (birthDate > new Date()) {
+    return { error: "Date of birth cannot be in the future" };
+  }
+
+  // Validate parent invite fields
+  if (inviteParent && !parentEmail?.trim()) {
+    return { error: "Parent email is required when inviting a parent" };
+  }
+  if (parentEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(parentEmail)) {
+    return { error: "Please enter a valid email address" };
   }
 
   const baby = await createBaby(prisma, userId, {
-    firstName,
-    lastName,
-    dateOfBirth: new Date(dateOfBirth),
+    firstName: firstName.trim(),
+    lastName: lastName.trim(),
+    dateOfBirth: birthDate,
     gender: gender || null,
   });
 
