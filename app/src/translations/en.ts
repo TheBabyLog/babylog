@@ -147,6 +147,12 @@ export const en = {
       boy: "Boy",
     },
     submit: "Add Baby",
+    parentInvite: {
+      question: "Invite another parent?",
+      description: "An invitation will be sent to this email address",
+      emailLabel: "Parent Email",
+      submitWithInvite: "Add Baby & Send Invitation",
+    },
     errors: {
       allFieldsRequired: "All fields are required",
     },

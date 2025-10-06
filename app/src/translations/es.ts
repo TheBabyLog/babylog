@@ -150,6 +150,12 @@ export const es: TranslationKeys = {
       boy: "Niño",
     },
     submit: "Agregar Bebé",
+    parentInvite: {
+      question: "¿Invitar a otro padre?",
+      description: "Se enviará una invitación a esta dirección de correo electrónico",
+      emailLabel: "Correo del Padre",
+      submitWithInvite: "Agregar Bebé y Enviar Invitación",
+    },
     errors: {
       allFieldsRequired: "Todos los campos son requeridos",
     },
