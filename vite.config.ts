@@ -28,6 +28,13 @@ export default defineConfig({
     }),
     tsconfigPaths(),
   ],
+  server: {
+    port: 5173,
+    strictPort: false,
+    hmr: {
+      port: 5174,
+    },
+  },
   ssr: {
     resolve: {
       conditions: ["workerd", "worker", "browser"],

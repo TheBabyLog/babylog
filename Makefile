@@ -19,7 +19,8 @@ start: ## Start the Remix development server
 	npm run dev -- --host
 
 stop: ## Stop the Remix development server (if running)
-	pkill -f "remix dev" || true
+	pkill -f "remix vite:dev" || true
+	pkill -f "vite" || true
 
 db-start: ## Start the database container
 	docker compose up -d
@@ -65,7 +66,7 @@ dev: db-start prisma-generate ## Start everything for development
 	@make start
 
 dev-refresh: ## Reset server and container for development (resets port 5173)
-	make stop 
+	make stop
 	lsof -i :5173 -t | xargs kill -9 || echo "No process running on port 5173"
 	make db-restart
 	make start
