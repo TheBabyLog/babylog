@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { ArrowUpDown, PlusIcon } from "lucide-react";
 import { PhotoModal } from "./PhotoModal";
-import { Link, useFetcher } from "@remix-run/react";
+import { Link, useFetcher } from "react-router";
 import { t } from "~/src/utils/translate";
 
 interface DashboardPhotos {
@@ -99,7 +99,7 @@ export function PhotoSection({
   const smallerPhotos = sortedPhotos.slice(1, 5);
 
   return (
-    <div className="bg-white shadow rounded-lg p-6">
+    <div className="bg-white shadow-sm rounded-lg p-6">
       {/* Header Section */}
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-lg font-semibold text-gray-800">

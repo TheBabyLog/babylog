@@ -1,4 +1,4 @@
-import { Form, useNavigate } from "@remix-run/react";
+import { Form, useNavigate } from "react-router";
 import { XIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { t, getCurrentLanguage } from "../../src/utils/translate";
@@ -39,7 +39,7 @@ export function TrackingModal({ babyId, title, fields }: TrackingModalProps) {
   }, [navigate, babyId]);
 
   const inputClasses =
-    "w-full p-2 border rounded bg-black text-white [&>option]:text-black";
+    "w-full p-2 border rounded-sm bg-black text-white [&>option]:text-black";
   const labelClasses = "block text-sm font-medium mb-1 text-white";
 
   const handleInvalid = (
@@ -100,7 +100,7 @@ export function TrackingModal({ babyId, title, fields }: TrackingModalProps) {
             id={field.id}
             name={field.id}
             type="text"
-            className="w-full p-2 border rounded bg-black text-white"
+            className="w-full p-2 border rounded-sm bg-black text-white"
             required={field.required}
             placeholder={field.placeholder}
             onInvalid={handleInvalid}
@@ -113,7 +113,7 @@ export function TrackingModal({ babyId, title, fields }: TrackingModalProps) {
             id={`field.${field.id}`}
             name={field.id}
             type="number"
-            className="w-full p-2 border rounded bg-black text-white"
+            className="w-full p-2 border rounded-sm bg-black text-white"
             required={field.required}
             placeholder={field.placeholder}
             defaultValue={field.defaultValue || ""}
@@ -129,7 +129,7 @@ export function TrackingModal({ babyId, title, fields }: TrackingModalProps) {
             id={field.id}
             name={field.id}
             type="file"
-            className="w-full p-2 border rounded bg-black text-white"
+            className="w-full p-2 border rounded-sm bg-black text-white"
             required={field.required}
             accept={field.accept}
             onInvalid={handleInvalid}
@@ -184,7 +184,7 @@ export function TrackingModal({ babyId, title, fields }: TrackingModalProps) {
                   </label>
                   <button
                     type="button"
-                    className="w-full p-2 border rounded bg-black text-white text-left mb-2"
+                    className="w-full p-2 border rounded-sm bg-black text-white text-left mb-2"
                     onClick={() => setPickerOpen(true)}
                     id={field.id}
                   >
@@ -228,13 +228,13 @@ export function TrackingModal({ babyId, title, fields }: TrackingModalProps) {
             <button
               type="button"
               onClick={() => navigate(`/baby/${babyId}`)}
-              className="px-4 py-2 text-gray-300 hover:bg-gray-800 rounded"
+              className="px-4 py-2 text-gray-300 hover:bg-gray-800 rounded-sm"
             >
               {t("modal.actions.cancel")}
             </button>
             <button
               type="submit"
-              className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+              className="px-4 py-2 bg-blue-500 text-white rounded-sm hover:bg-blue-600"
             >
               {t("modal.actions.save")}
             </button>

@@ -1,15 +1,15 @@
 import { render, screen, fireEvent } from "@testing-library/react";
-import { createRemixStub } from "@remix-run/testing";
+import { createRoutesStub } from "react-router";
 import { vi, expect, describe, test, beforeEach } from "vitest";
 import "@testing-library/jest-dom/vitest";
-import { json } from "@remix-run/node";
+import { data } from "react-router";
 
 // Define mocks first
 const mockNavigate = vi.fn();
 
 // Mock the modules
-vi.mock("@remix-run/react", () => {
-  const actual = require("@remix-run/react");
+vi.mock("react-router", () => {
+  const actual = require("react-router");
   return {
     ...actual,
     useNavigate: () => mockNavigate,
@@ -100,13 +100,13 @@ describe("TrackEvent Component", () => {
   });
 
   test("closes modal on escape key", async () => {
-    const RemixStub = createRemixStub([
+    const RemixStub = createRoutesStub([
       {
         path: "/baby/:id/track/:type",
         Component: TrackEvent,
         ErrorBoundary,
         loader: () =>
-          json({
+          data({
             baby: mockBaby,
             trackingConfig: {
               title: "Feeding",
@@ -136,13 +136,13 @@ describe("TrackEvent Component", () => {
   });
 
   test("closes modal on clicking close button", async () => {
-    const RemixStub = createRemixStub([
+    const RemixStub = createRoutesStub([
       {
         path: "/baby/:id/track/:type",
         Component: TrackEvent,
         ErrorBoundary,
         loader: () =>
-          json({
+          data({
             baby: mockBaby,
             trackingConfig: {
               title: "Feeding",

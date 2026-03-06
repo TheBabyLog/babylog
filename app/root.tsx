@@ -4,12 +4,11 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
-  LiveReload,
   useLoaderData,
   Link,
   useLocation,
-} from "@remix-run/react";
-import type { LinksFunction, LoaderFunctionArgs } from "@remix-run/node";
+} from "react-router";
+import type { LinksFunction, LoaderFunctionArgs } from "react-router";
 import { getCurrentLanguage, setLanguage } from "~/src/utils/translate";
 import { LanguageSelector } from "~/components/LanguageSelector";
 import { useEffect } from "react";
@@ -68,7 +67,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
       </head>
       <body className="bg-gray-900 text-white">
         {!isLoginPage && (
-          <header className="fixed top-0 left-0 w-full bg-blue shadow-sm z-10">
+          <header className="fixed top-0 left-0 w-full bg-blue shadow-xs z-10">
             <div className="max-w-7xl mx-auto px-4 py-2 flex items-center justify-between">
               <Link
                 to="/dashboard"
@@ -98,7 +97,6 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <main className={!isLoginPage ? "pt-16" : ""}>{children}</main>
         <ScrollRestoration />
         <Scripts />
-        <LiveReload />
       </body>
     </html>
   );

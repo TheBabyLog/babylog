@@ -1,10 +1,5 @@
 import { useState, useEffect } from "react";
-import {
-  Form,
-  useSubmit,
-  useActionData,
-  useNavigation,
-} from "@remix-run/react";
+import { Form, useSubmit, useActionData, useNavigation } from "react-router";
 import { t } from "~/src/utils/translate";
 
 interface AddCaregiverModalProps {
@@ -74,7 +69,7 @@ export default function AddCaregiverModal({
                   name="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 text-gray-900 bg-gray-200"
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-xs p-2 text-gray-900 bg-gray-200"
                   required
                 />
               </label>
@@ -108,7 +103,7 @@ export default function AddCaregiverModal({
             <button
               type="submit"
               disabled={navigation.state === "submitting"}
-              className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:opacity-70"
+              className="px-4 py-2 bg-blue-500 text-white rounded-sm hover:bg-blue-600 disabled:opacity-70"
             >
               {navigation.state === "submitting"
                 ? "Submitting..."

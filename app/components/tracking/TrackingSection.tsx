@@ -1,4 +1,4 @@
-import { Link } from "@remix-run/react";
+import { Link } from "react-router";
 import { PlusIcon, PencilIcon } from "lucide-react";
 import { t } from "~/src/utils/translate";
 import { getRelativeTime } from "~/src/utils/date";
@@ -69,7 +69,7 @@ export function TrackingSection({
   };
 
   return (
-    <div className="bg-white shadow rounded-lg p-6">
+    <div className="bg-white shadow-sm rounded-lg p-6">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-lg font-semibold text-gray-800">{title}</h2>
         <div className="flex items-center gap-2">

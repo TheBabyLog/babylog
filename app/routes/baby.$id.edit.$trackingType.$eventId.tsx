@@ -1,10 +1,5 @@
-import {
-  LoaderFunctionArgs,
-  ActionFunctionArgs,
-  redirect,
-  json,
-} from "@remix-run/node";
-import { useLoaderData } from "@remix-run/react";
+import { LoaderFunctionArgs, ActionFunctionArgs, redirect, data } from "react-router";
+import { useLoaderData } from "react-router";
 import { TrackingModal } from "~/components/tracking/TrackingModal";
 import { getBaby } from "~/.server/baby";
 import { requireUserId } from "~/.server/session";
@@ -201,7 +196,7 @@ export async function loader({
 
   if (!event) return redirect(`/baby/${params.id}`);
 
-  return json({ baby, event, trackingType });
+  return data({ baby, event, trackingType });
 }
 
 export async function action({

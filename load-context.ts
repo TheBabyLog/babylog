@@ -16,7 +16,7 @@ type GetLoadContextArgs = {
   };
 };
 
-declare module "@remix-run/cloudflare" {
+declare module "react-router" {
   interface AppLoadContext extends ReturnType<typeof getLoadContext> {
     prisma: ReturnType<typeof getPrismaClient>;
   }

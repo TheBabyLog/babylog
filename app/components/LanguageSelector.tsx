@@ -23,7 +23,7 @@ export function LanguageSelector() {
       id="language-selector"
       onChange={handleChange}
       value={currentLanguage}
-      className="bg-gray-800 text-white border border-gray-600 rounded px-2 py-1 text-sm"
+      className="bg-gray-800 text-white border border-gray-600 rounded-sm px-2 py-1 text-sm"
     >
       {languages.map((lang) => (
         <option

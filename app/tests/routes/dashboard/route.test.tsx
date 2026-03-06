@@ -5,7 +5,7 @@ vi.mock("~/.server/baby", () => ({
 }));
 
 import { render, screen } from "@testing-library/react";
-import { createRemixStub } from "@remix-run/testing";
+import { createRoutesStub } from "react-router";
 import Dashboard from "~/routes/dashboard/route";
 
 vi.mock("~/services/session.server", () => ({
@@ -17,7 +17,7 @@ describe("Dashboard", () => {
     const { getUserBabies } = await import("~/.server/baby");
     vi.mocked(getUserBabies).mockResolvedValueOnce([]);
 
-    const RemixStub = createRemixStub([
+    const RemixStub = createRoutesStub([
       {
         path: "/",
         Component: Dashboard,
@@ -49,7 +49,7 @@ describe("Dashboard", () => {
       },
     ]);
 
-    const RemixStub = createRemixStub([
+    const RemixStub = createRoutesStub([
       {
         path: "/",
         Component: Dashboard,

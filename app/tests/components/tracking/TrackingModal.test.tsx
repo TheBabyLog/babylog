@@ -7,7 +7,7 @@ import "@testing-library/jest-dom/vitest";
 const mockNavigate = vi.fn();
 
 // Mock modules
-vi.mock("@remix-run/react", () => ({
+vi.mock("react-router", () => ({
   Form: ({ children, ...props }: any) => (
     <form data-testid="mock-form" {...props}>
       {children}

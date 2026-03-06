@@ -1,0 +1,9 @@
+# Copy to .dev.vars and fill in your values
+# Wrangler loads .dev.vars for local development
+
+DATABASE_URL="postgresql://remix_user:remix_password@localhost:5432/remix_db"
+SESSION_SECRET="generate-a-random-string-at-least-32-characters-long"
+AWS_ACCESS_KEY_ID=""
+AWS_SECRET_ACCESS_KEY=""
+AWS_REGION="us-east-1"
+AWS_BUCKET_NAME="babybabylog"
