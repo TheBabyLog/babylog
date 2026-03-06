@@ -1,11 +1,14 @@
 import { vi, describe, it, expect, beforeEach } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
-import { redirect } from "@remix-run/node";
+import { redirect, data } from "react-router";
 
 // Define mocks within the factory functions
-vi.mock("@remix-run/react", () => ({
-  useActionData: vi.fn(() => undefined),
-  Form: ({
+vi.mock("react-router", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("react-router")>();
+  return {
+    ...actual,
+    useActionData: vi.fn(() => undefined),
+    Form: ({
     children,
     ...props
   }: {
@@ -36,7 +39,8 @@ vi.mock("@remix-run/react", () => ({
   }),
   useLocation: () => ({ pathname: "/" }),
   useMatches: () => [],
-}));
+  };
+});
 
 vi.mock("~/.server/session", () => ({
   createUserSession: vi.fn(),
@@ -58,7 +62,7 @@ vi.mock("~/src/utils/translate", () => ({
 }));
 
 // Now import the mocked modules after all vi.mock calls
-import { useActionData } from "@remix-run/react";
+import { useActionData } from "react-router";
 import { createUserSession, getUserId } from "~/.server/session";
 import { verifyLogin } from "~/.server/auth";
 import Login, { loader, action } from "~/routes/_index";
@@ -125,16 +129,18 @@ describe("Login Page", () => {
         body: formData,
       });
 
-      const response = await (action as any)({
+      const result = await (action as any)({
         request,
         context: mockContext,
         params: {},
       });
 
-      const responseData = await response.json();
+      // React Router v7 data() returns DataWithResponseInit, not Response
+      const responseData = result?.data ?? result;
+      const status = result?.init?.status ?? result?.status;
 
       expect(responseData).toEqual({ error: "Invalid credentials" });
-      expect(response.status).toBe(400);
+      expect(status).toBe(400);
     });
 
     it("creates user session on successful login", async () => {

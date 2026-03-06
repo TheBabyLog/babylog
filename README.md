@@ -24,12 +24,18 @@ Environment Setup
 
 Copy the example environment file and update it with your values:
 
-cp .env.example .env
-Your .env should contain:
+```
+cp .dev.vars.example .dev.vars
+```
+
+Your `.dev.vars` should contain at minimum:
 
 ```
 DATABASE_URL="postgresql://remix_user:remix_password@localhost:5432/remix_db"
+SESSION_SECRET="generate-a-random-string-at-least-32-characters-long"
 ```
+
+For production, set `SESSION_SECRET` via `wrangler secret put SESSION_SECRET`.
 
 Database Setup
 
@@ -73,12 +79,13 @@ Features
 
 Tech Stack
 
-- Remix
+- React Router v7
 - Prisma
 - PostgreSQL
 - Docker
 - bcryptjs
-- Tailwind CSS
+- Tailwind CSS v4
+- Cloudflare Workers
 
 Development
 To add new database models:

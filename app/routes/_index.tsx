@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { json, redirect } from "@remix-run/node";
-import { useActionData, Form } from "@remix-run/react";
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
+import { data, redirect } from "react-router";
+import { useActionData, Form } from "react-router";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { createUserSession, getUserId } from "~/.server/session";
 import { verifyLogin } from "~/.server/auth";
 import { t } from "~/src/utils/translate";
@@ -19,7 +19,7 @@ export async function action({ request, context }: ActionFunctionArgs) {
   const password = formData.get("password");
 
   if (!email || !password) {
-    return json(
+    return data(
       { error: t("auth.errors.credentialsRequired") },
       { status: 400 }
     );
@@ -27,7 +27,7 @@ export async function action({ request, context }: ActionFunctionArgs) {
 
   const user = await verifyLogin(prisma, email.toString(), password.toString());
   if (!user) {
-    return json(
+    return data(
       { error: t("auth.errors.invalidCredentials") },
       { status: 400 }
     );
@@ -60,7 +60,7 @@ export default function Login() {
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full p-2 border rounded"
+            className="w-full p-2 border rounded-sm"
           />
         </div>
 
@@ -74,13 +74,13 @@ export default function Login() {
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full p-2 border rounded"
+            className="w-full p-2 border rounded-sm"
           />
         </div>
 
         <button
           type="submit"
-          className="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
+          className="w-full bg-blue-500 text-white p-2 rounded-sm hover:bg-blue-600"
         >
           {t("auth.loginButton")}
         </button>

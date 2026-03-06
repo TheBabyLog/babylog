@@ -214,7 +214,7 @@ export function DateTimePicker({
               caption_label: "text-sm font-medium",
               nav: "space-x-1 flex items-center",
               nav_button:
-                "h-7 w-7 bg-white p-0 opacity-80 hover:opacity-100 border border-gray-300 shadow-sm",
+                "h-7 w-7 bg-white p-0 opacity-80 hover:opacity-100 border border-gray-300 shadow-xs",
               nav_button_previous: "absolute left-1",
               nav_button_next: "absolute right-1",
               table: "w-full border-collapse space-y-1",
@@ -240,7 +240,7 @@ export function DateTimePicker({
         <button
           type="button"
           onClick={handleToday}
-          className="mb-4 w-full py-2 bg-gray-800 text-white rounded hover:bg-cyan-700 transition"
+          className="mb-4 w-full py-2 bg-gray-800 text-white rounded-sm hover:bg-cyan-700 transition"
           aria-label={t("form.datePicker.today") || "Today"}
         >
           {t("form.datePicker.today") || "Today"}
@@ -255,7 +255,7 @@ export function DateTimePicker({
             max={23}
             value={tempTime.hour}
             onChange={handleTimeChange}
-            className="w-16 p-2 rounded border border-gray-200 text-black bg-white"
+            className="w-16 p-2 rounded-sm border border-gray-200 text-black bg-white"
             aria-label={t("form.datePicker.hour")}
           />
           <span className="text-black">:</span>
@@ -266,7 +266,7 @@ export function DateTimePicker({
             max={59}
             value={tempTime.minute}
             onChange={handleTimeChange}
-            className="w-16 p-2 rounded border border-gray-200 text-black bg-white"
+            className="w-16 p-2 rounded-sm border border-gray-200 text-black bg-white"
             aria-label={t("form.datePicker.minute")}
           />
         </div>
@@ -287,7 +287,7 @@ export function DateTimePicker({
           <button
             type="button"
             onClick={handleConfirm}
-            className="bg-cyan-600 text-white px-3 py-1 rounded hover:bg-cyan-700"
+            className="bg-cyan-600 text-white px-3 py-1 rounded-sm hover:bg-cyan-700"
             disabled={!selectedDate || !!timeError}
             aria-label={t("form.datePicker.confirm") || "Confirm"}
           >

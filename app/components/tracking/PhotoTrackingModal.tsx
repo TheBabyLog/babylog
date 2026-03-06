@@ -1,4 +1,4 @@
-import { Form, useNavigate, useNavigation } from "@remix-run/react";
+import { Form, useNavigate, useNavigation } from "react-router";
 import { Loader2, XIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { t } from "~/src/utils/translate";
@@ -72,7 +72,7 @@ export function PhotoTrackingModal({ babyId, error }: PhotoTrackingModalProps) {
               name="caption"
               type="text"
               placeholder={t("tracking.photo.captionPlaceholder")}
-              className="w-full p-2 border rounded bg-black text-white"
+              className="w-full p-2 border rounded-sm bg-black text-white"
             />
           </div>
 
@@ -80,14 +80,14 @@ export function PhotoTrackingModal({ babyId, error }: PhotoTrackingModalProps) {
             <button
               type="button"
               onClick={() => navigate(`/baby/${babyId}`)}
-              className="px-4 py-2 text-gray-300 hover:bg-gray-800 rounded"
+              className="px-4 py-2 text-gray-300 hover:bg-gray-800 rounded-sm"
             >
               {t("modal.actions.cancel")}
             </button>
             <button
               type="submit"
               disabled={isSubmitting || !photoFile}
-              className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:bg-blue-400 disabled:cursor-not-allowed flex items-center gap-2"
+              className="px-4 py-2 bg-blue-500 text-white rounded-sm hover:bg-blue-600 disabled:bg-blue-400 disabled:cursor-not-allowed flex items-center gap-2"
             >
               {isSubmitting && <Loader2 className="w-4 h-4 animate-spin" />}
               {t("modal.actions.save")}

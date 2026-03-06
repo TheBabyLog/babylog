@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Form, useActionData, useNavigation } from "@remix-run/react";
+import { Form, useActionData, useNavigation } from "react-router";
 import { XIcon } from "lucide-react";
 import { t, getCurrentLanguage } from "~/src/utils/translate";
 import { DateTimePicker } from "./DateTimePicker";
@@ -110,7 +110,7 @@ export function AddBabyModal({ isOpen, onClose, error }: AddBabyModalProps) {
               <input
                 type="text"
                 name="firstName"
-                className="mt-2 block w-full rounded-md border-gray-600 bg-gray-800 text-white shadow-sm p-2 focus:border-blue-500 focus:ring-blue-500"
+                className="mt-2 block w-full rounded-md border-gray-600 bg-gray-800 text-white shadow-xs p-2 focus:border-blue-500 focus:ring-blue-500"
                 required
               />
             </label>
@@ -122,7 +122,7 @@ export function AddBabyModal({ isOpen, onClose, error }: AddBabyModalProps) {
               <input
                 type="text"
                 name="lastName"
-                className="mt-2 block w-full rounded-md border-gray-600 bg-gray-800 text-white shadow-sm p-2 focus:border-blue-500 focus:ring-blue-500"
+                className="mt-2 block w-full rounded-md border-gray-600 bg-gray-800 text-white shadow-xs p-2 focus:border-blue-500 focus:ring-blue-500"
                 required
               />
             </label>
@@ -133,7 +133,7 @@ export function AddBabyModal({ isOpen, onClose, error }: AddBabyModalProps) {
               {t("newBaby.fields.dateOfBirth")}
               <button
                 type="button"
-                className="mt-2 block w-full rounded-md border-gray-600 bg-gray-800 text-white shadow-sm p-2 focus:border-blue-500 focus:ring-blue-500 text-left hover:bg-gray-700 transition-colors"
+                className="mt-2 block w-full rounded-md border-gray-600 bg-gray-800 text-white shadow-xs p-2 focus:border-blue-500 focus:ring-blue-500 text-left hover:bg-gray-700 transition-colors"
                 onClick={() => setPickerOpen(true)}
               >
                 {dateValue &&
@@ -173,7 +173,7 @@ export function AddBabyModal({ isOpen, onClose, error }: AddBabyModalProps) {
               {t("newBaby.fields.gender")}
               <select
                 name="gender"
-                className="mt-2 block w-full rounded-md border-gray-600 bg-gray-800 text-white shadow-sm p-2 focus:border-blue-500 focus:ring-blue-500"
+                className="mt-2 block w-full rounded-md border-gray-600 bg-gray-800 text-white shadow-xs p-2 focus:border-blue-500 focus:ring-blue-500"
               >
                 <option value="girl">{t("newBaby.genderOptions.girl")}</option>
                 <option value="boy">{t("newBaby.genderOptions.boy")}</option>
@@ -185,7 +185,7 @@ export function AddBabyModal({ isOpen, onClose, error }: AddBabyModalProps) {
             <label className="flex items-center text-sm font-medium text-white">
               <input
                 type="checkbox"
-                className="mr-2 rounded border-gray-600 bg-gray-800 text-blue-600 focus:ring-blue-500"
+                className="mr-2 rounded-sm border-gray-600 bg-gray-800 text-blue-600 focus:ring-blue-500"
                 onChange={(e) => setShowParentInvite(e.target.checked)}
               />
               {t("newBaby.parentInvite.question")}
@@ -204,7 +204,7 @@ export function AddBabyModal({ isOpen, onClose, error }: AddBabyModalProps) {
                   <input
                     type="email"
                     name="parentEmail"
-                    className="mt-2 block w-full rounded-md border-gray-600 bg-gray-800 text-white shadow-sm p-2 focus:border-blue-500 focus:ring-blue-500"
+                    className="mt-2 block w-full rounded-md border-gray-600 bg-gray-800 text-white shadow-xs p-2 focus:border-blue-500 focus:ring-blue-500"
                     required={showParentInvite}
                   />
                 </label>

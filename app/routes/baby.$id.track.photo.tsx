@@ -1,10 +1,5 @@
-import {
-  ActionFunctionArgs,
-  LoaderFunctionArgs,
-  json,
-  redirect,
-} from "@remix-run/node";
-import { useActionData, useLoaderData } from "@remix-run/react";
+import { ActionFunctionArgs, LoaderFunctionArgs, data, redirect } from "react-router";
+import { useActionData, useLoaderData } from "react-router";
 import { getBaby } from "~/.server/baby";
 import { requireUserId } from "~/.server/session";
 import { trackPhoto } from "~/.server/tracking";
@@ -37,7 +32,7 @@ export async function loader({
 
   if (!isAuthorized) return redirect("/dashboard");
 
-  return json({ baby });
+  return data({ baby });
 }
 
 export async function action({
@@ -60,16 +55,16 @@ export async function action({
   const photoFile = formData.get("photo") as File;
 
   if (!photoFile || photoFile.size === 0) {
-    return json({ error: "noFileSelected" }, { status: 400 });
+    return data({ error: "noFileSelected" }, { status: 400 });
   }
 
   if (!photoFile.type.startsWith("image/")) {
-    return json({ error: "invalidFileType" }, { status: 400 });
+    return data({ error: "invalidFileType" }, { status: 400 });
   }
 
   const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB in bytes
   if (photoFile.size > MAX_FILE_SIZE) {
-    return json({ error: "fileTooLarge" }, { status: 400 });
+    return data({ error: "fileTooLarge" }, { status: 400 });
   }
 
   try {
@@ -98,7 +93,7 @@ export async function action({
     return redirect(`/baby/${babyId}`);
   } catch (error) {
     console.error("Upload error:", error);
-    return json({ error: "uploadFailed" }, { status: 500 });
+    return data({ error: "uploadFailed" }, { status: 500 });
   }
 }
 

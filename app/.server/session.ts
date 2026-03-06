@@ -1,4 +1,18 @@
-import { createCookieSessionStorage, redirect } from "@remix-run/node";
+import { createCookieSessionStorage, redirect } from "react-router";
+
+function getSessionSecret(): string {
+    const secret = process.env.SESSION_SECRET;
+    if (process.env.NODE_ENV === "production") {
+        if (!secret || secret.length < 32) {
+            throw new Error(
+                "SESSION_SECRET must be set to a string of at least 32 characters in production. " +
+                    "Use `wrangler secret put SESSION_SECRET` to set it."
+            );
+        }
+        return secret;
+    }
+    return secret || "dev-session-secret-min-32-chars";
+}
 
 const sessionStorage = createCookieSessionStorage({
     cookie: {
@@ -6,7 +20,7 @@ const sessionStorage = createCookieSessionStorage({
         sameSite: "lax",
         path: "/",
         httpOnly: true,
-        secrets: ["s3cr3t"], // In production, use an environment variable
+        secrets: [getSessionSecret()],
         secure: process.env.NODE_ENV === "production",
     },
 });

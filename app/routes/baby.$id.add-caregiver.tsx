@@ -1,9 +1,5 @@
-import {
-  ActionFunctionArgs,
-  LoaderFunctionArgs,
-  redirect,
-} from "@remix-run/node";
-import { json } from "@remix-run/server-runtime";
+import { ActionFunctionArgs, LoaderFunctionArgs, redirect } from "react-router";
+import { data } from "react-router";
 import { requireUserId } from "~/.server/session";
 import { inviteNewCaregiver } from "~/.server/caregiver";
 
@@ -28,7 +24,7 @@ export async function action({ request, params, context }: ActionFunctionArgs) {
   const email = formData.get("email") as string;
 
   if (!email) {
-    return json({ error: "Email is required" }, { status: 400 });
+    return data({ error: "Email is required" }, { status: 400 });
   }
 
   try {
@@ -43,7 +39,7 @@ export async function action({ request, params, context }: ActionFunctionArgs) {
     return redirect(`/baby/${babyId}`);
   } catch (error) {
     console.error("Error inviting caregiver:", error);
-    return json(
+    return data(
       { error: "There was an error inviting the caregiver. Please try again." },
       { status: 400 }
     );

@@ -1,8 +1,4 @@
-import {
-  ActionFunctionArgs,
-  json,
-  unstable_parseMultipartFormData,
-} from "@remix-run/node";
+import { ActionFunctionArgs, data, unstable_parseMultipartFormData } from "react-router";
 import { deletePhoto, editPhoto } from "~/.server/tracking";
 import { requireUserId } from "~/.server/session";
 import type { PrismaClient } from "@prisma/client";
@@ -15,7 +11,7 @@ export async function action({
   const { prisma } = context;
   const photoId = parseInt(params.photoId || "", 10);
   if (isNaN(photoId)) {
-    return json({ success: false, error: "Invalid photo ID" }, { status: 400 });
+    return data({ success: false, error: "Invalid photo ID" }, { status: 400 });
   }
 
   await requireUserId(request);
@@ -23,10 +19,10 @@ export async function action({
   if (request.method === "DELETE") {
     try {
       await deletePhoto(prisma, request, photoId);
-      return json({ success: true });
+      return data({ success: true });
     } catch (error) {
       console.error("Error deleting photo:", error);
-      return json(
+      return data(
         { success: false, error: "Failed to delete photo" },
         { status: 500 }
       );
@@ -39,22 +35,22 @@ export async function action({
       const caption = formData.get("caption") as string;
 
       if (caption === null) {
-        return json(
+        return data(
           { success: false, error: "Caption is required" },
           { status: 400 }
         );
       }
 
       await editPhoto(prisma, request, photoId, { caption });
-      return json({ success: true });
+      return data({ success: true });
     } catch (error) {
       console.error("Error updating photo caption:", error);
-      return json(
+      return data(
         { success: false, error: "Failed to update photo caption" },
         { status: 500 }
       );
     }
   }
 
-  return json({ success: false, error: "Method not allowed" }, { status: 405 });
+  return data({ success: false, error: "Method not allowed" }, { status: 405 });
 }

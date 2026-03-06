@@ -1,4 +1,4 @@
-import { useFetcher } from "@remix-run/react";
+import { useFetcher } from "react-router";
 import { Edit, Save, Trash2, X } from "lucide-react";
 import { useEffect, useState, useRef } from "react";
 import { t } from "~/src/utils/translate";
@@ -97,7 +97,7 @@ export function PhotoModal({
             alt={caption || "Photo"}
             className="w-full h-auto max-h-[80vh] object-contain rounded-lg"
           />
-          <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black to-transparent">
+          <div className="absolute bottom-0 left-0 right-0 p-4 bg-linear-to-t from-black to-transparent">
             {isEditing ? (
               <div className="flex items-center gap-2">
                 <input
@@ -105,11 +105,11 @@ export function PhotoModal({
                   type="text"
                   value={caption}
                   onChange={(e) => setCaption(e.target.value)}
-                  className="w-full bg-gray-800 text-white p-2 rounded border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full bg-gray-800 text-white p-2 rounded-sm border border-gray-600 focus:outline-hidden focus:ring-2 focus:ring-blue-500"
                 />
                 <button
                   onClick={handleSave}
-                  className="p-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                  className="p-2 bg-blue-500 text-white rounded-sm hover:bg-blue-600"
                 >
                   <Save className="w-5 h-5" />
                 </button>
@@ -132,7 +132,7 @@ export function PhotoModal({
             {!isEditing && (
               <button
                 onClick={handleEdit}
-                className="flex items-center gap-1 px-3 py-1 bg-gray-700 text-white rounded hover:bg-gray-600"
+                className="flex items-center gap-1 px-3 py-1 bg-gray-700 text-white rounded-sm hover:bg-gray-600"
               >
                 <Edit className="w-4 h-4" />
                 <span>{t("photoModal.edit")}</span>
@@ -141,7 +141,7 @@ export function PhotoModal({
             <button
               onClick={handleDelete}
               disabled={isDeleting}
-              className="flex items-center gap-1 px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 disabled:bg-red-400 disabled:cursor-not-allowed"
+              className="flex items-center gap-1 px-3 py-1 bg-red-600 text-white rounded-sm hover:bg-red-700 disabled:bg-red-400 disabled:cursor-not-allowed"
             >
               {isDeleting ? (
                 <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />

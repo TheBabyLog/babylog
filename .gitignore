@@ -41,7 +41,10 @@ yarn-error.log*
 # Local files
 *.local
 
-# Remix specific
+# React Router
+.react-router/
+
+# Build artifacts
 /api/_build/
 /public/build
 /api/index.js
